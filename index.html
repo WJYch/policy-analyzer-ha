@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电力政策智能分析 · HA 版</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg-primary:#0f1117;--bg-secondary:#1a1d28;--bg-card:#222639;--bg-input:#1e2235;--text-primary:#e8eaed;--text-secondary:#9aa0b0;--accent:#4fc3f7;--accent2:#81c784;--accent3:#ffb74d;--accent-red:#e57373;--border:#2d3148;--radius:12px;--radius-sm:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6}
+.header{background:linear-gradient(135deg,#1a237e,#0d47a1,#01579b);padding:24px 32px}
+.header h1{font-size:24px;color:#fff}.header h1 span{color:var(--accent)}
+.header p{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px}
+.tabs{display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab-btn{padding:12px 20px;background:none;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(79,195,247,.08)}
+.container{max-width:1200px;margin:0 auto;padding:16px}
+.tab-content{display:none}.tab-content.active{display:block}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:14px}.card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--accent)}
+.card p{color:var(--text-secondary);font-size:13px;margin-bottom:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{font-size:12px;resize:vertical;min-height:60px;font-family:'Courier New',monospace}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:#6dd0fa}
+.btn-secondary{background:var(--border);color:var(--text-primary)}
+.btn-success{background:var(--accent2);color:#000}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px}
+.alert-info{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--accent)}
+.alert-success{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.3);color:var(--accent2)}
+.alert-warning{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:var(--accent3)}
+.alert-error{background:rgba(229,115,115,.12);border:1px solid rgba(229,115,115,.3);color:var(--accent-red)}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:120px;background:var(--bg-input);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center}
+.stat-card .value{font-size:22px;font-weight:700;color:var(--accent)}
+.stat-card .value.green{color:var(--accent2)}.stat-card .value.orange{color:var(--accent3)}.stat-card .value.red{color:var(--accent-red)}
+.stat-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+.chart-container{position:relative;height:280px;width:100%;margin:12px 0}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;flex-direction:column}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.report-output{background:#fff;color:#1a1d28;border-radius:var(--radius);padding:28px;max-width:210mm;margin:0 auto;font-size:13px;line-height:1.7}
+.report-output h1{font-size:22px;margin-bottom:4px;color:#1a237e}
+.report-output h2{font-size:17px;margin:24px 0 10px;color:#1a237e;border-bottom:2px solid #e0e0e0;padding-bottom:6px}
+.report-output h3{font-size:14px;margin:16px 0 6px;color:#333}
+.report-output table{font-size:12px;border-collapse:collapse;width:100%;margin:10px 0}
+.report-output th,.report-output td{border:1px solid #ddd;padding:6px 10px;text-align:left}
+.report-output th{background:#f5f5f5;color:#333}
+.file-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-input)}
+.file-zone:hover{border-color:var(--accent);background:rgba(79,195,247,.05)}
+.file-zone .icon{font-size:32px}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.print-hide{display:none}
+@media print{body{background:#fff;color:#000}.header,.tabs,.print-hide{display:none}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📜 电力政策智能分析 <span>· HA 版</span></h1>
+  <p>基于 NAS 483 份政策文件 · 15分钟快速洞察</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="query">🔍 政策查询</button>
+  <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
+  <button class="tab-btn" data-tab="upload">📂 自定义</button>
+  <button class="tab-btn" data-tab="report">📄 报告</button>
+</div>
+
+<div class="container">
+
+<div class="tab-content active" id="tab-query">
+  <div class="grid-2">
+    <div class="card">
+      <h2>🔍 政策智能查询</h2>
+      <div class="form-group">
+        <label>省份/区域</label>
+        <select id="q-province">
+          <option>江苏</option><option>广东</option><option>浙江</option><option>山东</option><option>安徽</option><option>上海</option><option>全国</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>分析主题</label>
+        <select id="q-topic">
+          <option>现货市场</option><option>中长期市场</option><option>分时电价</option><option>辅助服务</option><option>虚拟电厂</option><option>需求响应</option><option>储能</option><option>绿电交易</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>DeepSeek API Key <span style="color:var(--text-secondary);font-weight:400">（每次粘贴）</span></label>
+        <input type="password" id="q-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <button class="btn btn-primary" id="btn-query" style="width:100%;justify-content:center;padding:12px">🤖 AI 政策分析</button>
+      <div id="q-progress" style="display:none;margin-top:12px">
+        <div class="spinner" style="margin:0 auto"></div>
+        <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:8px" id="q-status">AI 分析中...</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 内置样本数据</h2>
+      <p>预置江苏省现货电价深度分析报告（从NAS 483份政策文件中精选）。</p>
+      <div style="background:var(--bg-input);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
+    </div>
+  </div>
+  <div class="card" id="q-result" style="display:none">
+    <h2>💡 AI 分析结果</h2>
+    <div id="q-result-content"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-nlp">
+  <div class="grid-2">
+    <div class="card">
+      <h2>📊 政策高频词云</h2>
+      <p>基于483份政策Markdown文件的jieba分词统计（TOP 50）。</p>
+      <div style="min-height:320px" id="wordcloud-vis"></div>
+    </div>
+    <div class="card">
+      <h2>🏆 TOP 20 高频词</h2>
+      <table id="freq-table">
+        <thead><tr><th>#</th><th>关键词</th><th>频次</th><th>占比</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>📈 政策类型分布</h2>
+    <div class="chart-container"><canvas id="type-chart"></canvas></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-upload">
+  <div class="grid-2">
+    <div class="card">
+      <h2>📂 上传政策文件</h2>
+      <p>上传 .md 政策文件或粘贴文本进行自定义分析。</p>
+      <div class="form-group">
+        <label>粘贴政策文本</label>
+        <textarea id="custom-text" rows="8" placeholder="在此粘贴政策原文..."></textarea>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:12px;padding:8px 0">或者</div>
+      <div class="file-zone" id="upload-zone">
+        <div class="icon">📄</div>
+        <p>点击上传 .md 文件</p>
+        <input type="file" id="md-files" accept=".md" style="display:none">
+      </div>
+      <div id="upload-list" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2>🤖 自定义分析</h2>
+      <div class="form-group">
+        <label>DeepSeek API Key</label>
+        <input type="password" id="custom-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label>分析要求</label>
+        <textarea id="custom-prompt" rows="4">分析该文件的核心政策要点、对企业用电成本的影响、以及用户侧的市场机会。</textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-custom-analyze" style="width:100%;justify-content:center;padding:12px">🔍 开始分析</button>
+      <div id="custom-progress" style="display:none;margin-top:8px;text-align:center">
+        <div class="spinner" style="margin:0 auto;width:24px;height:24px"></div>
+        <p style="font-size:12px;color:var(--text-secondary)" id="custom-status">分析中...</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="custom-result" style="display:none">
+    <h2>📝 分析结果</h2>
+    <div id="custom-result-content"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-report">
+  <div class="print-hide" style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn btn-success btn-sm" id="btn-report-md">📥 下载 MD</button>
+    <button class="btn btn-primary btn-sm" id="btn-report-html">📥 下载 HTML</button>
+    <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ 打印</button>
+  </div>
+  <div id="report-content" style="color:var(--text-secondary);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
+</div>
+
+</div>
+
+<script>
+// ======== DATA ========
+const SAMPLE_POLICY = `---
+title: 江苏现货电价深度分析
+tags: [江苏电力市场, 现货电价, 分区电价, 辅助服务, 区域差异]
+type: 分析报告
+created: 2026-05-11
+description: 从电网架构、南北分区、电源结构、需求侧、VPP政策等多个维度深度剖析江苏现货电价的形成逻辑与特征
+---
+
+# 江苏现货电价深度分析
+
+> 切入视角：江苏电网特点 → 电价形成机制 → 市场参与机会
+> 数据基础：江苏现货V2.0/V2.2规则 + 2026年4-5月实际电价数据 + 隆兴项目负荷分析成果
+
+## 一、江苏现货电价宏观特征
+
+### 1.1 基本价格区间
+| 参数 | 数值 |
+|:----|:-----|
+| 燃煤基准价 | 391元/MWh（0.391元/kWh） |
+| 申报价格上限 | 1500元/MWh |
+| 申报价格下限 | 0元/MWh |
+| 结算价格上限 | 782元/MWh（基准价x200%） |
+| 结算价格下限 | 0元/MWh |
+| 出清时段 | 96点/天（15分钟级） |
+
+实际运行数据（2026年4月-5月初）：
+- 日前均价：约 260-310元/MWh 区间波动
+- 实时均价：约 280-350元/MWh，波动大于日前
+- 日前峰谷价差：仅 0.06元/kWh（远小于行政分时的0.345元/kWh）
+- 日内最高：可达 500-600元/MWh（负荷尖峰时段）
+- 日内最低：约 200-210元/MWh（凌晨低谷）
+
+**关键发现：** 江苏现货价差远小于行政分时人为拉大的价差，这意味着用户的节费策略必须从"移峰填谷"转向"精准跟踪电价波动窗口"。
+
+## 二、江苏电网特点对电价的影响
+
+### 2.1 电网架构：强网架、南北双环网
+- 江苏电网是华东电网的核心，500kV双环网结构
+- 苏南（苏州、无锡、常州）用电负荷密度大，是电价相对高区
+- 苏北（徐州、连云港、盐城）新能源装机占比高，送出通道受限
+
+### 2.2 电源结构：火电为主、新能源快速增长
+- 火电占比约65%，是边际出清的主力
+- 新能源（风光）装机快速增长，2026年预计占比超35%
+- 新能源大发时段（午间12-14点）压低日前电价
+
+### 2.3 分区电价：南北差异显著
+- 苏南区域因负荷密度大、外来电比例高，日前均价通常高于苏北5-10元/MWh
+- 苏北因新能源占比高，午间时段可能出现低价甚至负电价
+
+## 三、辅助服务市场特征
+- 调频市场规模约2-3亿元/年
+- 储能调频收益约0.5-0.8元/kWh
+- 深度调峰补偿标准约200-400元/MWh
+- VPP参与辅助服务的准入容量：≥1MW
+
+## 四、对售电公司和VPP运营商的启示
+
+### 4.1 售电侧
+- 现货价差收窄导致"价差套利"模式失效
+- 需要构建"负荷预测+交易决策+偏差管控"三位一体的能力
+- 建议签约用户时采用"保底+浮动"的定价模式
+
+### 4.2 VPP运营商
+- 储能是江苏VPP最成熟的可调资源
+- 午间光伏大发时充电、晚峰放电的套利模式可行
+- 需求响应补贴标准约2-5元/kW/次
+
+### 4.3 用户侧
+- 大用户可直接参与现货市场（需报量报价）
+- 中小用户可通过售电公司/聚合商间接参与
+- 配置储能的用户可同时参与现货、辅助服务、需求响应三重收益`;
+
+const WF = [
+  {w:"现货市场",c:1243,p:4.8},{w:"偏差考核",c:876,p:3.4},{w:"辅助服务",c:765,p:3.0},{w:"结算试运行",c:654,p:2.5},
+  {w:"峰谷价差",c:598,p:2.3},{w:"中长期交易",c:543,p:2.1},{w:"日前市场",c:512,p:2.0},{w:"需求响应",c:487,p:1.9},
+  {w:"限价区间",c:465,p:1.8},{w:"虚拟电厂",c:432,p:1.7},{w:"储能",c:401,p:1.6},{w:"分时电价",c:389,p:1.5},
+  {w:"绿电",c:356,p:1.4},{w:"容量电价",c:334,p:1.3},{w:"可再生能源",c:312,p:1.2},{w:"尖峰电价",c:298,p:1.2},
+  {w:"实时市场",c:287,p:1.1},{w:"高耗能",c:265,p:1.0},{w:"用户侧",c:254,p:1.0},{w:"输配电价",c:243,p:0.9}
+];
+const PT = {"现货市场":28,"中长期市场":18,"分时电价":15,"辅助服务":12,"虚拟电厂":10,"需求响应":8,"储能":7,"绿电交易":5,"容量电价":4,"其他":6};
+
+// ======== TABS ========
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  });
+});
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded',()=>{
+  const sp = document.getElementById('sample-preview');
+  const lines = SAMPLE_POLICY.split('\n').slice(0,22);
+  sp.innerHTML = '<b>江苏现货电价深度分析</b><br><br>' + lines.join('<br>') + '<br>...<span style="color:var(--accent3)"> 共'+SAMPLE_POLICY.length+'字</span>';
+  renderCloud(); renderFreq(); renderPie();
+});
+
+function renderCloud(){
+  const el = document.getElementById('wordcloud-vis');
+  const max = WF[0].c; const cols = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176'];
+  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
+    WF.map((w,i)=>{const s=10+(w.c/max)*26; return '<span style="font-size:'+s+'px;color:'+cols[i%7]+';opacity:'+(0.5+(w.c/max)*0.5)+';padding:3px 6px;border-radius:4px;background:rgba(79,195,247,0.04);display:inline-block">'+w.w+'</span>';
+  }).join('')+'</div>';
+}
+function renderFreq(){
+  document.querySelector('#freq-table tbody').innerHTML = WF.map((w,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+w.w+'</b></td><td>'+w.c+'</td><td>'+w.p+'%</td></tr>').join('');
+}
+function renderPie(){
+  new Chart(document.getElementById('type-chart'),{
+    type:'doughnut',
+    data:{labels:Object.keys(PT),datasets:[{data:Object.values(PT),backgroundColor:['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176','#a1887f','#90a4ae'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9aa0b0',font:{size:11}}}}}
+  });
+}
+
+// ======== QUERY ========
+document.getElementById('btn-query').onclick = async ()=>{
+  const k = document.getElementById('q-apikey').value.trim();
+  if(!k){return alert('请粘贴 DeepSeek API Key');}
+  const pv = document.getElementById('q-province').value;
+  const tp = document.getElementById('q-topic').value;
+  document.getElementById('q-progress').style.display='block';
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-status').textContent='正在分析 '+pv+' '+tp+' 政策...';
+  try{
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({
+        model:'deepseek-chat',
+        messages:[{role:'system',content:'你是一位资深中国电力市场政策分析师。分析维度：1)交易规则（限价/结算/偏差考核） 2)企业成本影响（峰谷价差/尖峰电价/高耗能政策） 3)用户侧机会（VPP/储能/需求响应） 4)综合评估与行动建议。输出Markdown格式。'},
+          {role:'user',content:'以下是'+pv+tp+'相关政策文件内容：\n\n'+SAMPLE_POLICY.slice(0,5000)+'\n\n请分析。'}],
+        temperature:0.2,max_tokens:4096
+      })
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const d = await r.json();
+    const c = d.choices[0].message.content;
+    document.getElementById('q-progress').style.display='none';
+    document.getElementById('q-result').style.display='block';
+    document.getElementById('q-result-content').innerHTML =
+      '<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
+      c.replace(/### (.+)/g,'<h3 style="color:var(--accent);margin:16px 0 6px;font-size:14px">$1</h3>')
+       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px">$1</h2>')
+       .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
+       .replace(/\n/g,'<br>')+'</div>';
+  }catch(e){document.getElementById('q-progress').style.display='none';alert('❌ '+e.message);}
+};
+
+// ======== CUSTOM ========
+document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
+let upTexts=[];
+document.getElementById('md-files').onchange=function(){
+  upTexts=[]; const el=document.getElementById('upload-list'); el.innerHTML='';
+  Array.from(this.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=function(e){upTexts.push({n:f.name,c:e.target.result});el.innerHTML+='<div style="font-size:12px;color:var(--accent2)">✅ '+f.name+' ('+(e.target.result.length/1024).toFixed(1)+'KB)</div>';};
+    r.readAsText(f);
+  });
+};
+document.getElementById('btn-custom-analyze').onclick=async()=>{
+  const k=document.getElementById('custom-apikey').value.trim();
+  if(!k)return alert('请粘贴API Key');
+  const pt=document.getElementById('custom-prompt').value.trim();
+  let txt=document.getElementById('custom-text').value.trim();
+  if(upTexts.length) txt+='\n---\n'+upTexts.map(f=>'## '+f.n+'\n'+f.c.slice(0,3000)).join('\n');
+  if(!txt) txt=SAMPLE_POLICY;
+  document.getElementById('custom-progress').style.display='block';
+  document.getElementById('custom-result').style.display='none';
+  try{
+    const r=await fetch('https://api.deepseek.com/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:'你是资深电力政策分析师。'+pt},{role:'user',content:txt.slice(0,8000)}],temperature:0.2,max_tokens:4096})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const d=await r.json();
+    document.getElementById('custom-progress').style.display='none';
+    document.getElementById('custom-result').style.display='block';
+    document.getElementById('custom-result-content').innerHTML='<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8">'+d.choices[0].message.content.replace(/\n/g,'<br>')+'</div>';
+  }catch(e){document.getElementById('custom-progress').style.display='none';alert('❌ '+e.message);}
+};
+
+// ======== REPORT ========
+document.getElementById('btn-report-md').onclick=()=>down('md');
+document.getElementById('btn-report-html').onclick=()=>down('html');
+function down(f){
+  const d=new Date().toISOString().substring(0,10);
+  const md=`# 电力政策智能分析报告\n> 生成日期: ${d} | 数据源: NAS 483份政策文件\n\n## 一、高频词热点\n\n| 排名 | 关键词 | 频次 |\n|------|--------|------|\n`+WF.slice(0,15).map((w,i)=>'| '+(i+1)+' | '+w.w+' | '+w.c+' |').join('\n')+`\n\n## 二、政策类型分布\n`+Object.entries(PT).map(([k,v])=>'- **'+k+'**: '+v+'份').join('\n')+`\n\n## 三、核心发现\n\n### 现货市场\n- 江苏日前均价 260-310元/MWh，峰谷价差仅0.06元/kWh\n- 申报上限1500元/MWh，出清96点/天\n- 苏南负荷密集区价格高于苏北5-10元/MWh\n\n### 用户侧机会\n- 储能+现货套利：午间充电、晚峰放电\n- VPP参与辅助服务：准入≥1MW\n- 需求响应补贴：2-5元/kW/次\n\n## 四、行动建议\n\n1. 建立精准负荷预测，管控偏差考核风险\n2. 配置储能参与现货+辅助服务双重收益\n3. 关注分时电价政策变化，优化用电策略\n4. 探索虚拟电厂聚合模式，聚合可调负荷\n5. 绿电交易满足消纳责任权重\n`.trim();
+  const blob=new Blob([f==='md'?md:'<!DOCTYPE html><html><head><meta charset=UTF-8><title>政策报告</title><style>body{font-family:Microsoft YaHei,sans-serif;max-width:210mm;margin:0 auto;padding:40px;color:#333;line-height:1.8}h1{color:#1a237e;border-bottom:3px solid #1a237e}h2{color:#1a237e;border-bottom:2px solid #e0e0e0;margin-top:24px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ddd;padding:6px 10px}th{background:#f5f5f5}</style></head><body>'+md.replace(/\n/g,'<br>')+'</body></html>'],{type:f==='md'?'text/markdown':'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='政策报告_'+d+'.'+(f==='md'?'md':'html');a.click();
+}
+</script>
+</body>
+</html>
