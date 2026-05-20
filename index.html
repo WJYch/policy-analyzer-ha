@@ -91,16 +91,51 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="query">🔍 政策查询</button>
+  <button class="tab-btn active" data-tab="files">📂 文件库</button>
+  <button class="tab-btn" data-tab="query">🔍 政策查询</button>
   <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
   <button class="tab-btn" data-tab="upload">📂 自定义</button>
-  <button class="tab-btn" data-tab="files">📂 文件库</button>
   <button class="tab-btn" data-tab="report">📄 报告</button>
 </div>
 
 <div class="container">
 
-<div class="tab-content active" id="tab-query">
+
+
+
+
+
+
+
+
+<!-- ===== TAB: FILES ===== -->
+
+<div class="tab-content active" id="tab-files">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card">
+      <h2>📂 政策文件库</h2>
+      <p>上传 .md 文件（浏览器端持久化存储），或加载内置示例/全量库。</p>
+      <div class="form-group">
+        <div class="file-zone" id="upzone"><div class="icon">📄</div><p>点击上传 .md 政策文件</p><input type="file" id="upfile" accept=".md" style="display:none"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btn-samples">📦 加载示例文件</button>
+        <button class="btn btn-secondary" id="btn-clear">🗑️ 清空数据</button>
+        <button class="btn" id="btn-remote" style="background:var(--ap,#ba68c8);color:#000">📡 加载全量库</button>
+      </div>
+      <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--text-secondary)"></div>
+    </div>
+    <div class="card" style="max-height:420px;overflow:auto">
+      <h2>📋 文件列表</h2>
+      <div id="file-list"><div style="color:var(--text-secondary);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
+    </div>
+  </div>
+  <div class="card" id="preview-card" style="display:none">
+    <h2 id="preview-title">📖 预览</h2>
+    <div id="preview-content" class="fcr"></div>
+  </div>
+</div>
+<div class="tab-content" id="tab-query">
   <div class="grid-2">
     <div class="card">
       <h2>🔍 政策智能查询</h2>
@@ -184,7 +219,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div id="q-result-content"></div>
   </div>
 </div>
-
 <div class="tab-content" id="tab-nlp">
   <div class="grid-2">
     <div class="card">
@@ -205,7 +239,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div class="chart-container"><canvas id="type-chart"></canvas></div>
   </div>
 </div>
-
 <div class="tab-content" id="tab-upload">
   <div class="grid-2">
     <div class="card">
@@ -245,7 +278,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div id="custom-result-content"></div>
   </div>
 </div>
-
 <div class="tab-content" id="tab-report">
   <div class="print-hide" style="display:flex;gap:8px;margin-bottom:12px">
     <button class="btn btn-success btn-sm" id="btn-report-md">📥 下载 MD</button>
@@ -253,33 +285,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ 打印</button>
   </div>
   <div id="report-content" style="color:var(--text-secondary);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
-</div>
-
-<!-- ===== TAB: FILES ===== -->
-<div class="tab-content" id="tab-files">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-    <div class="card">
-      <h2>📂 政策文件库</h2>
-      <p>上传 .md 文件（浏览器端持久化存储），或加载内置示例/全量库。</p>
-      <div class="form-group">
-        <div class="file-zone" id="upzone"><div class="icon">📄</div><p>点击上传 .md 政策文件</p><input type="file" id="upfile" accept=".md" style="display:none"></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-primary" id="btn-samples">📦 加载示例文件</button>
-        <button class="btn btn-secondary" id="btn-clear">🗑️ 清空数据</button>
-        <button class="btn" id="btn-remote" style="background:var(--ap,#ba68c8);color:#000">📡 加载全量库</button>
-      </div>
-      <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--text-secondary)"></div>
-    </div>
-    <div class="card" style="max-height:420px;overflow:auto">
-      <h2>📋 文件列表</h2>
-      <div id="file-list"><div style="color:var(--text-secondary);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
-    </div>
-  </div>
-  <div class="card" id="preview-card" style="display:none">
-    <h2 id="preview-title">📖 预览</h2>
-    <div id="preview-content" class="fcr"></div>
-  </div>
 </div>
 </div>
 
@@ -1231,6 +1236,7 @@ async function loadRemoteLibrary() {
   setTimeout(() => el.remove(), 4000);
 }
 
+function msg(type,t){showMsg(type,t);}
 
 
 // ======================== FILE TAB EVENTS ========================
