@@ -1108,31 +1108,46 @@ function searchFiles() {
 
 // ======================== AI ========================
 async function runAI() {
-  const key = document.getElementById('ai-key').value.trim();
-  if (!key) { showMsg('w','请粘贴API Key'); return; }
-  if (files.length === 0) { showMsg('w','请先加载文件'); return; }
+  const key = document.getElementById('q-apikey').value.trim();
+  if (!key) { msg('w','请粘贴API Key'); return; }
+  if (files.length === 0) { msg('w','请先加载文件或点击「加载全量库」'); return; }
   
-  document.getElementById('ai-progress').style.display = 'block';
-  document.getElementById('ai-result').style.display = 'none';
-  document.getElementById('ai-status').textContent = '构建文件摘要...';
+  const pv = document.getElementById('q-province').value;
+  const tp = document.getElementById('q-topic').value;
   
-  const scope = document.getElementById('ai-scope').value;
-  const targetFiles = scope === 'all' ? files : files.filter(f => f.id === scope);
+  msg('i','🔄 正在搜索 ' + pv + ' ' + tp + ' 相关文件...');
   
-  // Build summary
-  const summary = targetFiles.map(f => ({
-    id: f.id, title: f.title || f.id, size: f.size,
-    links: (f.links||[]).slice(0,10),
-    contentPreview: f.content.replace(/^---[\s\S]*?---/,'').substring(0,800)
-  }));
+  // Search loaded files that match province or topic
+  const keywords = [pv, tp].filter(k => !['全国','国家级','全部文件'].includes(k));
   
-  document.getElementById('ai-summary').innerHTML = [
-    '<div class="sc"><div class="v">' + summary.length + '</div><div class="l">文件数</div></div>',
-    '<div class="sc"><div class="v">' + summary.reduce((a,f) => a + (f.links||[]).length, 0) + '</div><div class="l">引用总数</div></div>',
-    '<div class="sc"><div class="v o">' + (summary.reduce((a,f) => a + f.size, 0) / 1024).toFixed(0) + '</div><div class="l">总KB</div></div>'
-  ].join('');
+  let matching = [];
+  if (keywords.length === 0 && files.length <= 50) {
+    matching = files;
+  } else if (keywords.length === 0) {
+    matching = [...files].sort((a,b) => (b.links||[]).length - (a.links||[]).length).slice(0, 30);
+  } else {
+    matching = files.filter(f => {
+      const s = (f.title + ' ' + f.id + ' ' + (f.content||'')).toLowerCase();
+      return keywords.some(k => s.includes(k.toLowerCase()));
+    });
+    if (matching.length === 0) matching = files.slice(0, 20);
+    if (matching.length > 30) matching = matching.slice(0, 30);
+  }
   
-  document.getElementById('ai-status').textContent = '发送给 DeepSeek AI...';
+  if (matching.length === 0) { msg('w','未找到匹配文件'); return; }
+  
+  // Build prompt with matching file summaries
+  let contentText = '';
+  for (const f of matching) {
+    const preview = (f.content||'').replace(/^---[\s\S]*?---/,'').substring(0, 600);
+    const add = '## ' + (f.title||f.id) + '\n' + preview + '\n\n';
+    if (contentText.length + add.length > 8000) break;
+    contentText += add;
+  }
+  
+  document.getElementById('q-progress').style.display = 'block';
+  document.getElementById('q-result').style.display = 'none';
+  document.getElementById('q-status').textContent = '正在分析 ' + pv + ' ' + tp + '（基于 ' + matching.length + ' 份文件）...';
   
   try {
     const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -1141,33 +1156,29 @@ async function runAI() {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          {role:'system',content:'你是一位资深电力市场政策分析师。请基于提供的政策文件列表进行综合分析。\n\n## 分析维度\n1. **政策全景**：覆盖哪些领域？各省份各有何特点？\n2. **关键趋势**：近期政策的核心方向是什么？\n3. **关联分析**：文件之间的双向链接揭示了哪些知识点关系？\n4. **用户侧影响**：这些政策对工商业用电企业和VPP运营商有何影响？\n5. **行动建议**：给出3-5条基于政策趋势的具体建议。\n\n输出格式：专业Markdown报告，分章节，关键数据加粗。'},
-          {role:'user',content:'以下是政策文件库摘要（共'+summary.length+'个文件）：\n```json\n'+JSON.stringify(summary,null,2).substring(0,12000)+'\n```\n\n请基于这些政策文件进行综合分析。'}
+          {role:'system',content:'你是一位资深中国电力市场政策分析师。用户选择省份/区域: ' + pv + '，主题: ' + tp + '。\n\n分析维度：\n1) 交易规则（限价/结算/偏差考核）\n2) 企业成本影响（峰谷价差/尖峰电价/高耗能政策）\n3) 用户侧机会（VPP/储能/需求响应）\n4) 综合评估与行动建议\n\n输出专业Markdown格式报告，首段加粗概括核心结论。'},
+          {role:'user',content:'以下是匹配的政策文件（' + matching.length + '份，' + pv + ' / ' + tp + '）：\n\n' + contentText + '\n\n请基于以上文件进行专业政策分析。'}
         ],
-        temperature:0.3, max_tokens:4096
+        temperature: 0.2, max_tokens: 4096
       })
     });
     if (!resp.ok) throw new Error(await resp.text());
-    const data = await resp.json();
-    const content = data.choices[0].message.content;
-    
-    document.getElementById('ai-progress').style.display = 'none';
-    document.getElementById('ai-result').style.display = 'block';
-    document.getElementById('ai-content').innerHTML =
-      '<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">' +
-      content.replace(/### (.+)/g,'<h3 style="color:var(--ac);margin:16px 0 6px;font-size:14px">$1</h3>')
-        .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--bd);padding-bottom:6px">$1</h2>')
-        .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
-        .replace(/\n/g,'<br>')+'</div>';
-    showMsg('g','✅ AI分析完成');
+    const d = await resp.json();
+    const c = d.choices[0].message.content;
+    document.getElementById('q-progress').style.display = 'none';
+    document.getElementById('q-result').style.display = 'block';
+    document.getElementById('q-result-content').innerHTML =
+      '<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">' +
+      c.replace(/### (.+)/g,'<h3 style="color:var(--accent);margin:16px 0 6px;font-size:14px">$1</h3>')
+       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--bd);padding-bottom:6px">$1</h2>')
+       .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
+       .replace(/\n/g,'<br>') + '</div>';
+    msg('g','✅ 分析完成（基于 ' + matching.length + ' 份文件）');
   } catch(e) {
-    document.getElementById('ai-progress').style.display = 'none';
-    showMsg('r','❌ '+e.message);
+    document.getElementById('q-progress').style.display = 'none';
+    msg('r','❌ ' + e.message);
   }
-}
-
-// ======================== UTILS ========================
-function escapeHtml(s) {
+}function escapeHtml(s) {
   const d = document.createElement('div');
   d.textContent = s || '';
   return d.innerHTML;
@@ -1180,7 +1191,7 @@ function formatSize(n) {
 async function loadRemoteLibrary() {
   const btn = document.getElementById('btn-remote');
   const stats = document.getElementById('file-stats');
-  if (!btn) return;
+  if (!btn || !stats) { msg('r', '❌ 加载失败: 页面元素未就绪'); return; }
   btn.disabled = true;
   btn.textContent = '⏳ 加载中...';
   try {
