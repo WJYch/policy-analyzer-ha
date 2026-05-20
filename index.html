@@ -6,181 +6,274 @@
 <title>电力政策智能分析 · HA 版</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg1:#0f1117;--bg2:#1a1d28;--bg3:#222639;--bg4:#1e2235;--t1:#e8eaed;--t2:#9aa0b0;--ac:#4fc3f7;--ac2:#81c784;--ac3:#ffb74d;--ar:#e57373;--ap:#ba68c8;--bd:#2d3148;--r:12px;--rs:8px}
+:root{--bg-primary:#0f1117;--bg-secondary:#1a1d28;--bg-card:#222639;--bg-input:#1e2235;--text-primary:#e8eaed;--text-secondary:#9aa0b0;--accent:#4fc3f7;--accent2:#81c784;--accent3:#ffb74d;--accent-red:#e57373;--border:#2d3148;--radius:12px;--radius-sm:8px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg1);color:var(--t1);min-height:100vh;line-height:1.6}
-.hdr{background:linear-gradient(135deg,#1a237e,#0d47a1,#01579b);padding:24px 32px}
-.hdr h1{font-size:24px;color:#fff}.hdr h1 span{color:var(--ac)}.hdr p{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px}
-.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bd);overflow-x:auto}
-.tb{padding:12px 20px;background:none;border:none;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
-.tb:hover{color:var(--t1);background:rgba(255,255,255,.05)}
-.tb.active{color:var(--ac);border-bottom-color:var(--ac);background:rgba(79,195,247,.08)}
-.ct{max-width:1200px;margin:0 auto;padding:16px}
-.tc{display:none}.tc.active{display:block}
-.card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:16px}
-.card h2{font-size:16px;font-weight:600;margin-bottom:14px}.card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--ac)}
-.card p{color:var(--t2);font-size:13px;margin-bottom:8px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(orientation:portrait),(max-width:860px){.g2,.g3{grid-template-columns:1fr!important}.ct{padding:10px}.card{padding:14px}}
-.fg{margin-bottom:14px}
-.fg label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--t2)}
-.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;background:var(--bg4);border:1px solid var(--bd);border-radius:var(--rs);color:var(--t1);font-size:13px;outline:none}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ac)}
-.fg textarea{font-size:12px;resize:vertical;min-height:60px;font-family:'Courier New',monospace}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn-p{background:var(--ac);color:#000}.btn-p:hover{background:#6dd0fa}
-.btn-s{background:var(--bd);color:var(--t1)}.btn-g{background:var(--ac2);color:#000}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6}
+.header{background:linear-gradient(135deg,#1a237e,#0d47a1,#01579b);padding:24px 32px}
+.header h1{font-size:24px;color:#fff}.header h1 span{color:var(--accent)}
+.header p{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px}
+.tabs{display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border);overflow-x:auto}
+.tab-btn{padding:12px 20px;background:none;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(79,195,247,.08)}
+.container{max-width:1200px;margin:0 auto;padding:16px}
+.tab-content{display:none}.tab-content.active{display:block}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:14px}.card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--accent)}
+.card p{color:var(--text-secondary);font-size:13px;margin-bottom:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{font-size:12px;resize:vertical;min-height:60px;font-family:'Courier New',monospace}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:#6dd0fa}
+.btn-secondary{background:var(--border);color:var(--text-primary)}
+.btn-success{background:var(--accent2);color:#000}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.alert{padding:10px 14px;border-radius:var(--rs);font-size:12px;margin-bottom:12px}
-.alert-i{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--ac)}
-.alert-g{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.3);color:var(--ac2)}
-.alert-w{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:var(--ac3)}
-.alert-r{background:rgba(229,115,115,.12);border:1px solid rgba(229,115,115,.3);color:var(--ar)}
+.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px}
+.alert-info{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--accent)}
+.alert-success{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.3);color:var(--accent2)}
+.alert-warning{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:var(--accent3)}
+.alert-error{background:rgba(229,115,115,.12);border:1px solid rgba(229,115,115,.3);color:var(--accent-red)}
+.stat-row{display:flex;gap:12px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:120px;background:var(--bg-input);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center}
+.stat-card .value{font-size:22px;font-weight:700;color:var(--accent)}
+.stat-card .value.green{color:var(--accent2)}.stat-card .value.orange{color:var(--accent3)}.stat-card .value.red{color:var(--accent-red)}
+.stat-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
+.chart-container{position:relative;height:280px;width:100%;margin:12px 0}
+.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;flex-direction:column}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.report-output{background:#fff;color:#1a1d28;border-radius:var(--radius);padding:28px;max-width:210mm;margin:0 auto;font-size:13px;line-height:1.7}
+.report-output h1{font-size:22px;margin-bottom:4px;color:#1a237e}
+.report-output h2{font-size:17px;margin:24px 0 10px;color:#1a237e;border-bottom:2px solid #e0e0e0;padding-bottom:6px}
+.report-output h3{font-size:14px;margin:16px 0 6px;color:#333}
+.report-output table{font-size:12px;border-collapse:collapse;width:100%;margin:10px 0}
+.report-output th,.report-output td{border:1px solid #ddd;padding:6px 10px;text-align:left}
+.report-output th{background:#f5f5f5;color:#333}
+.file-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-input)}
+.file-zone:hover{border-color:var(--accent);background:rgba(79,195,247,.05)}
+.file-zone .icon{font-size:32px}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.print-hide{display:none}
+@media print{body{background:#fff;color:#000}.header,.tabs,.print-hide{display:none}}
+
 /* File management */
-.fz{border:2px dashed var(--bd);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg4)}
-.fz:hover{border-color:var(--ac);background:rgba(79,195,247,.05)}.fz .ic{font-size:32px}
-.fc{padding:10px 14px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:6px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
-.fc:hover{border-color:var(--ac);background:rgba(79,195,247,.04)}
-.fc .fn{color:var(--t1);font-weight:500}.fc .fm{color:var(--t2);font-size:11px}.fc .fl{color:var(--ac);font-size:11px}
-.fcr h1{font-size:17px;color:var(--t1);margin:16px 0 8px}
-.fcr h2{font-size:15px;color:var(--t1);margin:12px 0 6px;border-bottom:1px solid var(--bd);padding-bottom:4px}
-.fcr h3{font-size:13px;color:var(--ac);margin:10px 0 4px}
-.fcr p,.fcr li{color:var(--t2);font-size:12px;margin-bottom:4px;line-height:1.7}
+.wl{color:var(--accent);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--accent);transition:all .2s}
+.wl:hover{color:#fff;border-bottom-color:#fff;background:rgba(79,195,247,.12)}
+.fc{padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:6px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.fc:hover{border-color:var(--accent);background:rgba(79,195,247,.04)}
+.fc .fn{color:var(--text-primary);font-weight:500}.fc .fm{color:var(--text-secondary);font-size:11px}.fc .fl{color:var(--accent);font-size:11px}
+.fcr h1{font-size:17px;color:var(--text-primary);margin:16px 0 8px}
+.fcr h2{font-size:15px;color:var(--text-primary);margin:12px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.fcr h3{font-size:13px;color:var(--accent);margin:10px 0 4px}
+.fcr p,.fcr li{color:var(--text-secondary);font-size:12px;margin-bottom:4px;line-height:1.7}
 .fcr table{font-size:11px;border-collapse:collapse;width:100%;margin:8px 0}
-.fcr th,.fcr td{border:1px solid var(--bd);padding:4px 8px;text-align:left}
-.fcr th{background:var(--bg4);color:var(--t2)}
-.fcr blockquote{border-left:3px solid var(--ac);padding:6px 12px;margin:8px 0;background:rgba(79,195,247,.04);color:var(--t2)}
-.fcr code{background:var(--bg4);padding:1px 5px;border-radius:3px;font-size:11px}
-.fcr hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
+.fcr th,.fcr td{border:1px solid var(--border);padding:4px 8px;text-align:left}
+.fcr th{background:var(--bg-input);color:var(--text-secondary)}
+.fcr blockquote{border-left:3px solid var(--accent);padding:6px 12px;margin:8px 0;background:rgba(79,195,247,.04);color:var(--text-secondary)}
+.fcr code{background:var(--bg-input);padding:1px 5px;border-radius:3px;font-size:11px}
+.fcr hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 .fcr ul,.fcr ol{padding-left:20px}
 .fcr li{margin-bottom:2px}
-.fcr strong{color:#fff}
-.fcr em{color:var(--ac3)}
-.wl{color:var(--ac);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--ac);transition:all .2s}
-.wl:hover{color:#fff;border-bottom-color:#fff;background:rgba(79,195,247,.12)}
-/* Stat cards */
-.sr{display:flex;gap:12px;flex-wrap:wrap}
-.sc{flex:1;min-width:100px;background:var(--bg4);padding:12px;border-radius:var(--rs);border:1px solid var(--bd);text-align:center}
-.sc .v{font-size:22px;font-weight:700;color:var(--ac)}.sc .v.g{color:var(--ac2)}.sc .v.o{color:var(--ac3)}.sc .v.r{color:var(--ar)}.sc .v.p{color:var(--ap)}
-.sc .l{font-size:10px;color:var(--t2);margin-top:2px}
-/* Chart & report */
-.chart-box{position:relative;height:280px;width:100%;margin:12px 0}
-.spin{width:32px;height:32px;border:3px solid var(--bd);border-top:3px solid var(--ac);border-radius:50%;animation:s .8s linear infinite;margin:0 auto}
-@keyframes s{to{transform:rotate(360deg)}}
-.report{background:#fff;color:#1a1d28;border-radius:var(--r);padding:28px;max-width:210mm;margin:0 auto;font-size:13px;line-height:1.7}
-.report h1{font-size:22px;margin-bottom:4px;color:#1a237e}
-.report h2{font-size:17px;margin:24px 0 10px;color:#1a237e;border-bottom:2px solid #e0e0e0;padding-bottom:6px}
-.report h3{font-size:14px;margin:16px 0 6px;color:#333}
-.report table{font-size:12px;border-collapse:collapse;width:100%;margin:10px 0}
-.report th,.report td{border:1px solid #ddd;padding:6px 10px;text-align:left}
-.report th{background:#f5f5f5;color:#333}
-.nop{display:none}@media print{body{background:#fff;color:#000}.hdr,.tabs,.nop{display:none}}
-
-/* Password field workaround - avoid GitHub Pages phishing flag */
-input.pwd{font-family:Verdana;letter-spacing:6px;-webkit-text-security:disc;text-security:disc}
+.fcr strong{color:#fff}.fcr em{color:var(--accent3)}
+@media(max-width:860px){.fc{font-size:12px}}
 </style>
 </head>
 <body>
 
-<div class="hdr">
+<div class="header">
   <h1>📜 电力政策智能分析 <span>· HA 版</span></h1>
-  <p>基于 NAS 482 份政策文件 · 文件库 · AI 分析 · 知识图谱 · 词频分析</p>
+  <p>基于 NAS 483 份政策文件 · 15分钟快速洞察</p>
 </div>
 
-<div class="tabs">
-  <button class="tb active" data-t="query">🔍 政策查询</button>
-  <button class="tb" data-t="nlp">📊 词频分析</button>
-  <button class="tb" data-t="files">📂 文件库</button>
-  <button class="tb" data-t="upload">📤 自定义</button>
-  <button class="tb" data-t="report">📄 报告</button>
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="query">🔍 政策查询</button>
+  <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
+  <button class="tab-btn" data-tab="upload">📂 自定义</button>
+  <button class="tab-btn" data-tab="report">📄 报告</button>
 </div>
 
-<div class="ct">
+<div class="container">
 
-<!-- ===== TAB: QUERY ===== -->
-<div class="tc active" id="tc-query">
-  <div class="g2">
+<div class="tab-content active" id="tab-query">
+  <div class="grid-2">
     <div class="card">
       <h2>🔍 政策智能查询</h2>
-      <div class="fg">
+      <div class="form-group">
         <label>省份/区域</label>
         <select id="q-province">
-          <optgroup label="🗺️ 全国"><option>全国</option><option>国家级</option></optgroup>
-          <optgroup label="📌 区域级"><option>南方区域</option><option>华北区域</option><option>华中区域</option><option>东北区域</option><option>长三角区域</option><option>跨省跨区</option></optgroup>
-          <optgroup label="🏛️ 华东"><option selected>江苏</option><option>浙江</option><option>安徽</option><option>福建</option><option>山东</option><option>上海</option></optgroup>
-          <optgroup label="🏛️ 南方"><option>广东</option><option>广西</option><option>云南</option><option>贵州</option><option>海南</option></optgroup>
-          <optgroup label="🏛️ 华中"><option>湖南</option><option>湖北</option><option>河南</option></optgroup>
-          <optgroup label="🏛️ 华北"><option>北京河北冀北</option><option>蒙西内蒙古</option></optgroup>
-          <optgroup label="🏛️ 东北"><option>辽宁</option><option>吉林</option><option>黑龙江</option></optgroup>
-          <optgroup label="🏛️ 西北"><option>陕西</option><option>甘肃</option><option>青海</option><option>宁夏</option><option>新疆</option></optgroup>
+          <optgroup label="🗺️ 全国">
+            <option>全国</option>
+            <option>国家级</option>
+          </optgroup>
+          <optgroup label="📌 区域级">
+            <option>南方区域</option>
+            <option>华北区域</option>
+            <option>华中区域</option>
+            <option>东北区域</option>
+            <option>长三角区域</option>
+            <option>跨省跨区</option>
+          </optgroup>
+          <optgroup label="🏛️ 华东">
+            <option selected>江苏</option>
+            <option>浙江</option>
+            <option>安徽</option>
+            <option>福建</option>
+            <option>山东</option>
+            <option>上海</option>
+          </optgroup>
+          <optgroup label="🏛️ 南方">
+            <option>广东</option>
+            <option>广西</option>
+            <option>云南</option>
+            <option>贵州</option>
+            <option>海南</option>
+          </optgroup>
+          <optgroup label="🏛️ 华中">
+            <option>湖南</option>
+            <option>湖北</option>
+            <option>河南</option>
+          </optgroup>
+          <optgroup label="🏛️ 华北">
+            <option>北京河北冀北</option>
+            <option>蒙西内蒙古</option>
+          </optgroup>
+          <optgroup label="🏛️ 东北">
+            <option>辽宁</option>
+            <option>吉林</option>
+            <option>黑龙江</option>
+          </optgroup>
+          <optgroup label="🏛️ 西北">
+            <option>陕西</option>
+            <option>甘肃</option>
+            <option>青海</option>
+            <option>宁夏</option>
+            <option>新疆</option>
+          </optgroup>
         </select>
       </div>
-      <div class="fg">
+      <div class="form-group">
         <label>分析主题</label>
         <select id="q-topic">
           <option>现货市场</option><option>中长期市场</option><option>分时电价</option><option>辅助服务</option><option>虚拟电厂</option><option>需求响应</option><option>储能</option><option>绿电交易</option>
         </select>
       </div>
-      <div class="fg">
-        <label>DeepSeek API Key <span style="font-weight:400;color:var(--t2)">（每次粘贴）</span></label>
-        <input type="text" class="pwd" id="q-apikey" autocomplete="off" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      <div class="form-group">
+        <label>DeepSeek API Key <span style="color:var(--text-secondary);font-weight:400">（每次粘贴）</span></label>
+        <input type="text" id="q-apikey" autocomplete="off" style="-webkit-text-security:disc;text-security:disc" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
       </div>
-      <button class="btn btn-p" id="btn-query" style="width:100%;justify-content:center;padding:12px">🤖 AI 政策分析</button>
+      <button class="btn btn-primary" id="btn-query" style="width:100%;justify-content:center;padding:12px">🤖 AI 政策分析</button>
       <div id="q-progress" style="display:none;margin-top:12px">
-        <div class="spin"></div>
-        <p style="text-align:center;font-size:12px;color:var(--t2);margin-top:8px" id="q-status">AI 分析中...</p>
+        <div class="spinner" style="margin:0 auto"></div>
+        <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:8px" id="q-status">AI 分析中...</p>
       </div>
     </div>
     <div class="card">
       <h2>📋 内置样本数据</h2>
-      <p>预置江苏省现货电价深度分析报告（从NAS 482份政策文件中精选）。</p>
-      <div style="background:var(--bg4);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
+      <p>预置江苏省现货电价深度分析报告（从NAS 483份政策文件中精选）。</p>
+      <div style="background:var(--bg-input);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
     </div>
   </div>
-  <div class="card nop" id="q-result" style="display:none">
+  <div class="card" id="q-result" style="display:none">
     <h2>💡 AI 分析结果</h2>
     <div id="q-result-content"></div>
   </div>
 </div>
 
-<!-- ===== TAB: NLP ===== -->
-<div class="tc" id="tc-nlp">
-  <div class="g2">
+<div class="tab-content" id="tab-nlp">
+  <div class="grid-2">
     <div class="card">
       <h2>📊 政策高频词云</h2>
-      <p>基于482份政策Markdown文件的jieba分词统计（TOP 50）。</p>
+      <p>基于483份政策Markdown文件的jieba分词统计（TOP 50）。</p>
       <div style="min-height:320px" id="wordcloud-vis"></div>
     </div>
     <div class="card">
       <h2>🏆 TOP 20 高频词</h2>
-      <table id="freq-table"><thead><tr><th>#</th><th>关键词</th><th>频次</th><th>占比</th></tr></thead><tbody></tbody></table>
+      <table id="freq-table">
+        <thead><tr><th>#</th><th>关键词</th><th>频次</th><th>占比</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
   <div class="card">
     <h2>📈 政策类型分布</h2>
-    <div class="chart-box"><canvas id="type-chart"></canvas></div>
+    <div class="chart-container"><canvas id="type-chart"></canvas></div>
   </div>
 </div>
 
+<div class="tab-content" id="tab-upload">
+  <div class="grid-2">
+    <div class="card">
+      <h2>📂 上传政策文件</h2>
+      <p>上传 .md 政策文件或粘贴文本进行自定义分析。</p>
+      <div class="form-group">
+        <label>粘贴政策文本</label>
+        <textarea id="custom-text" rows="8" placeholder="在此粘贴政策原文..."></textarea>
+      </div>
+      <div style="text-align:center;color:var(--text-secondary);font-size:12px;padding:8px 0">或者</div>
+      <div class="file-zone" id="upload-zone">
+        <div class="icon">📄</div>
+        <p>点击上传 .md 文件</p>
+        <input type="file" id="md-files" accept=".md" style="display:none">
+      </div>
+      <div id="upload-list" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h2>🤖 自定义分析</h2>
+      <div class="form-group">
+        <label>DeepSeek API Key</label>
+        <input type="text" id="custom-apikey" autocomplete="off" style="-webkit-text-security:disc;text-security:disc" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label>分析要求</label>
+        <textarea id="custom-prompt" rows="4">分析该文件的核心政策要点、对企业用电成本的影响、以及用户侧的市场机会。</textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-custom-analyze" style="width:100%;justify-content:center;padding:12px">🔍 开始分析</button>
+      <div id="custom-progress" style="display:none;margin-top:8px;text-align:center">
+        <div class="spinner" style="margin:0 auto;width:24px;height:24px"></div>
+        <p style="font-size:12px;color:var(--text-secondary)" id="custom-status">分析中...</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="custom-result" style="display:none">
+    <h2>📝 分析结果</h2>
+    <div id="custom-result-content"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-report">
+  <div class="print-hide" style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn btn-success btn-sm" id="btn-report-md">📥 下载 MD</button>
+    <button class="btn btn-primary btn-sm" id="btn-report-html">📥 下载 HTML</button>
+    <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ 打印</button>
+  </div>
+  <div id="report-content" style="color:var(--text-secondary);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
+</div>
+
+
 <!-- ===== TAB: FILES ===== -->
-<div class="tc" id="tc-files">
-  <div class="g2">
+<div class="tab-content" id="tab-files">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
     <div class="card">
       <h2>📂 政策文件库</h2>
       <p>上传 .md 文件（浏览器端持久化存储），或加载内置示例/全量库。</p>
-      <div class="fg">
-        <div class="fz" id="upzone"><div class="ic">📄</div><p>点击上传 .md 政策文件</p><input type="file" id="upfile" accept=".md" style="display:none"></div>
+      <div class="form-group">
+        <div class="file-zone" id="upzone"><div class="icon">📄</div><p>点击上传 .md 政策文件</p><input type="file" id="upfile" accept=".md" style="display:none"></div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-p" id="btn-samples">📦 加载示例文件</button>
-        <button class="btn btn-s" id="btn-clear">🗑️ 清空数据</button>
-        <button class="btn" id="btn-remote" style="background:var(--ap);color:#000">📡 加载全量库</button>
+        <button class="btn btn-primary" id="btn-samples">📦 加载示例文件</button>
+        <button class="btn btn-secondary" id="btn-clear">🗑️ 清空数据</button>
+        <button class="btn" id="btn-remote" style="background:#ba68c8;color:#000">📡 加载全量库</button>
       </div>
-      <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--t2)"></div>
+      <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--text-secondary)"></div>
     </div>
     <div class="card" style="max-height:420px;overflow:auto">
       <h2>📋 文件列表</h2>
-      <div id="file-list"><div style="color:var(--t2);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
+      <div id="file-list"><div style="color:var(--text-secondary);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
     </div>
   </div>
   <div class="card nop" id="preview-card" style="display:none">
@@ -188,57 +281,20 @@ input.pwd{font-family:Verdana;letter-spacing:6px;-webkit-text-security:disc;text
     <div id="preview-content" class="fcr"></div>
   </div>
 </div>
-
-<!-- ===== TAB: UPLOAD ===== -->
-<div class="tc" id="tc-upload">
-  <div class="g2">
-    <div class="card">
-      <h2>📤 上传政策文件</h2>
-      <p>上传 .md 政策文件或粘贴文本进行自定义分析。</p>
-      <div class="fg"><label>粘贴政策文本</label><textarea id="custom-text" rows="8" placeholder="在此粘贴政策原文..."></textarea></div>
-      <div style="text-align:center;color:var(--t2);font-size:12px;padding:8px 0">或者</div>
-      <div class="fz" id="upload-zone"><div class="ic">📄</div><p>点击上传 .md 文件</p><input type="file" id="md-files" accept=".md" style="display:none"></div>
-      <div id="upload-list" style="margin-top:8px"></div>
-    </div>
-    <div class="card">
-      <h2>🤖 自定义分析</h2>
-      <div class="fg"><label>DeepSeek API Key</label><input type="text" class="pwd" id="custom-apikey" autocomplete="off" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
-      <div class="fg"><label>分析要求</label><textarea id="custom-prompt" rows="4">分析该文件的核心政策要点、对企业用电成本的影响、以及用户侧的市场机会。</textarea></div>
-      <button class="btn btn-p" id="btn-custom-analyze" style="width:100%;justify-content:center;padding:12px">🔍 开始分析</button>
-      <div id="custom-progress" style="display:none;margin-top:8px;text-align:center">
-        <div class="spin" style="width:24px;height:24px"></div>
-        <p style="font-size:12px;color:var(--t2)" id="custom-status">分析中...</p>
-      </div>
-    </div>
-  </div>
-  <div class="card nop" id="custom-result" style="display:none">
-    <h2>📝 分析结果</h2>
-    <div id="custom-result-content"></div>
-  </div>
-</div>
-
-<!-- ===== TAB: REPORT ===== -->
-<div class="tc" id="tc-report">
-  <div class="nop" style="display:flex;gap:8px;margin-bottom:12px">
-    <button class="btn btn-g" id="btn-report-md">📥 下载 MD</button>
-    <button class="btn btn-p" id="btn-report-html">📥 下载 HTML</button>
-    <button class="btn btn-s" onclick="window.print()">🖨️ 打印</button>
-  </div>
-  <div id="report-content" style="color:var(--t2);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
-</div>
-
 </div>
 
 <script>
-// ======================== SAMPLE DATA ========================
-const SAMPLE_POLICY_STR = `---
+// ======== DATA ========
+const SAMPLE_POLICY = `---
 title: 江苏现货电价深度分析
 tags: [江苏电力市场, 现货电价, 分区电价, 辅助服务, 区域差异]
 type: 分析报告
 created: 2026-05-11
 description: 从电网架构、南北分区、电源结构、需求侧、VPP政策等多个维度深度剖析江苏现货电价的形成逻辑与特征
 ---
+
 # 江苏现货电价深度分析
+
 > 切入视角：江苏电网特点 → 电价形成机制 → 市场参与机会
 > 数据基础：江苏现货V2.0/V2.2规则 + 2026年4-5月实际电价数据 + 隆兴项目负荷分析成果
 
@@ -310,6 +366,111 @@ const WF = [
   {w:"实时市场",c:287,p:1.1},{w:"高耗能",c:265,p:1.0},{w:"用户侧",c:254,p:1.0},{w:"输配电价",c:243,p:0.9}
 ];
 const PT = {"现货市场":28,"中长期市场":18,"分时电价":15,"辅助服务":12,"虚拟电厂":10,"需求响应":8,"储能":7,"绿电交易":5,"容量电价":4,"其他":6};
+
+// ======== TABS ========
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded',()=>{
+  const sp = document.getElementById('sample-preview');
+  const lines = SAMPLE_POLICY.split('\n').slice(0,22);
+  sp.innerHTML = '<b>江苏现货电价深度分析</b><br><br>' + lines.join('<br>') + '<br>...<span style="color:var(--accent3)"> 共'+SAMPLE_POLICY.length+'字</span>';
+  renderCloud(); renderFreq(); renderPie();
+});
+
+function renderCloud(){
+  const el = document.getElementById('wordcloud-vis');
+  const max = WF[0].c; const cols = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176'];
+  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
+    WF.map((w,i)=>{const s=10+(w.c/max)*26; return '<span style="font-size:'+s+'px;color:'+cols[i%7]+';opacity:'+(0.5+(w.c/max)*0.5)+';padding:3px 6px;border-radius:4px;background:rgba(79,195,247,0.04);display:inline-block">'+w.w+'</span>';
+  }).join('')+'</div>';
+}
+function renderFreq(){
+  document.querySelector('#freq-table tbody').innerHTML = WF.map((w,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+w.w+'</b></td><td>'+w.c+'</td><td>'+w.p+'%</td></tr>').join('');
+}
+function renderPie(){
+  new Chart(document.getElementById('type-chart'),{
+    type:'doughnut',
+    data:{labels:Object.keys(PT),datasets:[{data:Object.values(PT),backgroundColor:['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176','#a1887f','#90a4ae'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9aa0b0',font:{size:11}}}}}
+  });
+}
+
+// ======== QUERY ========
+document.getElementById('btn-query').onclick = async ()=>{
+  const k = document.getElementById('q-apikey').value.trim();
+  if(!k){return alert('请粘贴 DeepSeek API Key');}
+  const pv = document.getElementById('q-province').value;
+  const tp = document.getElementById('q-topic').value;
+  document.getElementById('q-progress').style.display='block';
+  document.getElementById('q-result').style.display='none';
+  document.getElementById('q-status').textContent='正在分析 '+pv+' '+tp+' 政策...';
+  try{
+    const r = await fetch('https://api.deepseek.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({
+        model:'deepseek-chat',
+        messages:[{role:'system',content:'你是一位资深中国电力市场政策分析师。分析维度：1)交易规则（限价/结算/偏差考核） 2)企业成本影响（峰谷价差/尖峰电价/高耗能政策） 3)用户侧机会（VPP/储能/需求响应） 4)综合评估与行动建议。输出Markdown格式。'},
+          {role:'user',content:'以下是'+pv+tp+'相关政策文件内容：\n\n'+SAMPLE_POLICY.slice(0,5000)+'\n\n请分析。'}],
+        temperature:0.2,max_tokens:4096
+      })
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const d = await r.json();
+    const c = d.choices[0].message.content;
+    document.getElementById('q-progress').style.display='none';
+    document.getElementById('q-result').style.display='block';
+    document.getElementById('q-result-content').innerHTML =
+      '<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
+      c.replace(/### (.+)/g,'<h3 style="color:var(--accent);margin:16px 0 6px;font-size:14px">$1</h3>')
+       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px">$1</h2>')
+       .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
+       .replace(/\n/g,'<br>')+'</div>';
+  }catch(e){document.getElementById('q-progress').style.display='none';alert('❌ '+e.message);}
+};
+
+// ======== CUSTOM ========
+document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
+let upTexts=[];
+document.getElementById('md-files').onchange=function(){
+  upTexts=[]; const el=document.getElementById('upload-list'); el.innerHTML='';
+  Array.from(this.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=function(e){upTexts.push({n:f.name,c:e.target.result});el.innerHTML+='<div style="font-size:12px;color:var(--accent2)">✅ '+f.name+' ('+(e.target.result.length/1024).toFixed(1)+'KB)</div>';};
+    r.readAsText(f);
+  });
+};
+document.getElementById('btn-custom-analyze').onclick=async()=>{
+  const k=document.getElementById('custom-apikey').value.trim();
+  if(!k)return alert('请粘贴API Key');
+  const pt=document.getElementById('custom-prompt').value.trim();
+  let txt=document.getElementById('custom-text').value.trim();
+  if(upTexts.length) txt+='\n---\n'+upTexts.map(f=>'## '+f.n+'\n'+f.c.slice(0,3000)).join('\n');
+  if(!txt) txt=SAMPLE_POLICY;
+  document.getElementById('custom-progress').style.display='block';
+  document.getElementById('custom-result').style.display='none';
+  try{
+    const r=await fetch('https://api.deepseek.com/v1/chat/completions',{
+      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:'你是资深电力政策分析师。'+pt},{role:'user',content:txt.slice(0,8000)}],temperature:0.2,max_tokens:4096})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const d=await r.json();
+    document.getElementById('custom-progress').style.display='none';
+    document.getElementById('custom-result').style.display='block';
+    document.getElementById('custom-result-content').innerHTML='<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8">'+d.choices[0].message.content.replace(/\n/g,'<br>')+'</div>';
+  }catch(e){document.getElementById('custom-progress').style.display='none';alert('❌ '+e.message);}
+};
+
+// ======== REPORT ========
+document.getElementById('btn-report-md').onclick=()=>down('md');
+document.getElementById('btn-report-html').onclick=()=>down('html');
+function down(f){
+  const d=new Date().toISOString().substring(0,10);
+  const md=`# 电力政策智能分析报告\n> 生成日期: ${d} | 数据源: NAS 483份政策文件\n\n## 一、高频词热点\n\n| 排名 | 关键词 | 频次 |\n|------|--------|------|\n`+WF.slice(0,15).map((w,i)=>'| '+(i+1)+' | '+w.w+' | '+w.c+' |').join('\n')+`\n\n## 二、政策类型分布\n`+Object.entries(PT).map(([k,v])=>'- **'+k+'**: '+v+'份').join('\n')+`\n\n## 三、核心发现\n\n### 现货市场\n- 江苏日前均价 260-310元/MWh，峰谷价差仅0.06元/kWh\n- 申报上限1500元/MWh，出清96点/天\n- 苏南负荷密集区价格高于苏北5-10元/MWh\n\n### 用户侧机会\n- 储能+现货套利：午间充电、晚峰放电\n- VPP参与辅助服务：准入≥1MW\n- 需求响应补贴：2-5元/kW/次\n\n## 四、行动建议\n\n1. 建立精准负荷预测，管控偏差考核风险\n2. 配置储能参与现货+辅助服务双重收益\n3. 关注分时电价政策变化，优化用电策略\n4. 探索虚拟电厂聚合模式，聚合可调负荷\n5. 绿电交易满足消纳责任权重\n`.trim();
+  const blob=new Blob([f==='md'?md:'<!DOCTYPE html><html><head><meta charset=UTF-8><title>政策报告</title><style>body{font-family:Microsoft YaHei,sans-serif;max-width:210mm;margin:0 auto;padding:40px;color:#333;line-height:1.8}h1{color:#1a237e;border-bottom:3px solid #1a237e}h2{color:#1a237e;border-bottom:2px solid #e0e0e0;margin-top:24px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ddd;padding:6px 10px}th{background:#f5f5f5}</style></head><body>'+md.replace(/\n/g,'<br>')+'</body></html>'],{type:f==='md'?'text/markdown':'text/html'});;
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='政策报告_'+d+'.'+(f==='md'?'md':'html');a.click();
+}
 
 // ======================== FILE MANAGEMENT DATA ========================
 const SAMPLE_FILES = [
@@ -459,7 +620,7 @@ const SAMPLE_FILES = [
  }
 ];
 
-// ======================== INDEXED DB ========================
+// ======================== FILE MANAGEMENT ========================
 const DB = { db: null };
 function dbOpen() {
   return new Promise((res,rej)=>{
@@ -468,14 +629,15 @@ function dbOpen() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('files')) {
         const store = db.createObjectStore('files', { keyPath: 'id' });
-        store.createIndex('title','title',{unique:false});
-        store.createIndex('tags','tags',{unique:false});
+        store.createIndex('title', 'title', { unique: false });
+        store.createIndex('tags', 'tags', { unique: false });
       }
     };
     r.onsuccess = e => { DB.db = e.target.result; res(); };
     r.onerror = e => rej(e);
   });
 }
+
 function dbPut(file) {
   return new Promise((res,rej)=>{
     const tx = DB.db.transaction('files','readwrite');
@@ -484,6 +646,7 @@ function dbPut(file) {
     tx.onerror = e => rej(e);
   });
 }
+
 function dbGetAll() {
   return new Promise((res,rej)=>{
     const tx = DB.db.transaction('files','readonly');
@@ -492,6 +655,15 @@ function dbGetAll() {
     r.onerror = e => rej(e);
   });
 }
+
+function dbDelete(id) {
+  return new Promise((res,rej)=>{
+    const tx = DB.db.transaction('files','readwrite');
+    tx.objectStore('files').delete(id);
+    tx.oncomplete = () => res();
+  });
+}
+
 function dbClear() {
   return new Promise((res,rej)=>{
     const tx = DB.db.transaction('files','readwrite');
@@ -511,11 +683,17 @@ function extractWikilinks(text) {
   }
   return links;
 }
-function renderWikiContent(text, flist) {
+
+function renderWikiContent(text, files) {
+  // Extract YAML front matter
   text = text.replace(/^---[\s\S]*?---\s*/, '');
+  // Remove Obsidian callouts
   text = text.replace(/>\s*\[!\w+\][\s\S]*?(?=\n\n|\n#|$)/g, '');
+  // Remove LaTeX math blocks (keep plain text)
   text = text.replace(/\$\$[\s\S]*?\$\$/g, '[数学公式]');
   text = text.replace(/\$[^$]*?\$/g, '');
+  
+  // Convert markdown headings
   let html = text
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
     .replace(/^## (.+)$/gm, '<h2>$1</h2>')
@@ -533,253 +711,567 @@ function renderWikiContent(text, flist) {
     })
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>');
+  
+  // Wrap table rows
   html = html.replace(/(<tr>.*?<\/tr>)+/g, '<table>$&</table>');
   html = '<p>' + html + '</p>';
+  
+  // Replace [[wikilinks]] with clickable links
   html = html.replace(/\[\[([^\]]+)\]\]/g, (m, content) => {
     const parts = content.split('|');
     const target = parts[0].trim();
     const display = parts[1] ? parts[1].trim() : target;
-    const exists = flist.some(f => f.id === target || f.title === target || (f.id && f.id.includes(target)));
-    const esc = target.replace(/'/g, "\\'");
-    if (exists) return '<a class="wl" onclick="openWikilink(\''+esc+'\')">'+display+'</a>';
-    return '<a class="wl" style="opacity:0.6;cursor:help" title="文件未加载">'+display+'</a>';
+    const exists = files.some(f => f.id === target || f.title === target || f.id.includes(target));
+    const escaped = target.replace(/'/g, "\\'");
+    if (exists) {
+      return '<a class="wl" onclick="openWikilink(\''+escaped+'\')">'+display+'</a>';
+    } else {
+      return '<a class="wl" style="opacity:0.6;cursor:help" title="文件未加载">'+display+'</a>';
+    }
   });
+  
   return html;
 }
 
 // ======================== GLOBAL STATE ========================
 let files = [];
-
-// ======================== TAB SWITCH ========================
-document.querySelectorAll('.tb').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tc').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('tc-'+b.dataset.t).classList.add('active');
-    if(b.dataset.t==='files') renderFileList();
-  });
-});
+let graphRunning = false;
 
 // ======================== INIT ========================
 document.addEventListener('DOMContentLoaded', async () => {
   // Init DB
-  try { await dbOpen(); const s = await dbGetAll(); if(s.length>0) files=s; }
-  catch(e) { console.log('DB:',e); }
-
-  // NLP init
-  const sp = document.getElementById('sample-preview');
-  const lines = SAMPLE_POLICY_STR.split('\n').slice(0,22);
-  sp.innerHTML = '<b>江苏现货电价深度分析</b><br><br>' + lines.join('<br>') + '<br>...<span style="color:var(--ac3)"> 共'+SAMPLE_POLICY_STR.length+'字</span>';
-  renderCloud(); renderFreq(); renderPie();
-
-  // File tab events
+  try {
+    await dbOpen();
+    const stored = await dbGetAll();
+    if (stored.length > 0) {
+      files = stored;
+    }
+  } catch(e) { console.log('DB init:', e); }
+  
+  // Setup events
+  document.querySelectorAll('.tb').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.tb').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tc').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById('tc-' + b.dataset.t).classList.add('active');
+      if (b.dataset.t === 'graph') renderGraph();
+      if (b.dataset.t === 'reader') renderReader();
+    });
+  });
+  
   document.getElementById('upzone').onclick = () => document.getElementById('upfile').click();
   document.getElementById('upfile').onchange = handleUpload;
   document.getElementById('btn-samples').onclick = loadSamples;
   document.getElementById('btn-clear').onclick = clearAll;
   document.getElementById('btn-remote').onclick = loadRemoteLibrary;
-
-  // Query events
-  document.getElementById('btn-query').onclick = runQuery;
-
-  // Upload events
-  document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
-  document.getElementById('btn-custom-analyze').onclick = runCustom;
-
-  // Report events
-  document.getElementById('btn-report-md').onclick=()=>down('md');
-  document.getElementById('btn-report-html').onclick=()=>down('html');
-
+  document.getElementById('btn-ai').onclick = runAI;
+  document.getElementById('btn-search').onclick = searchFiles;
+  document.getElementById('search-q').onkeydown = e => { if(e.key==='Enter') searchFiles(); };
+  
   // Load samples if empty
-  if(files.length===0) await loadSamples();
+  if (files.length === 0) await loadSamples();
   else renderFileList();
 });
 
-// ======================== NLP ========================
-function renderCloud(){
-  const el = document.getElementById('wordcloud-vis');
-  const max = WF[0].c;
-  const cols = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176'];
-  el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
-    WF.map((w,i)=>{const s=10+(w.c/max)*26; return '<span style="font-size:'+s+'px;color:'+cols[i%7]+';opacity:'+(0.5+(w.c/max)*0.5)+';padding:3px 6px;border-radius:4px;background:rgba(79,195,247,0.04);display:inline-block">'+w.w+'</span>';
-  }).join('')+'</div>';
-}
-function renderFreq(){
-  document.querySelector('#freq-table tbody').innerHTML = WF.map((w,i)=>'<tr><td>'+(i+1)+'</td><td><b>'+w.w+'</b></td><td>'+w.c+'</td><td>'+w.p+'%</td></tr>').join('');
-}
-function renderPie(){
-  new Chart(document.getElementById('type-chart'),{
-    type:'doughnut',
-    data:{labels:Object.keys(PT),datasets:[{data:Object.values(PT),backgroundColor:['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176','#a1887f','#90a4ae'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9aa0b0',font:{size:11}}}}}
-  });
-}
-
 // ======================== FILE MANAGEMENT ========================
 async function handleUpload(e) {
-  for(const file of e.target.files){
+  for (const file of e.target.files) {
     const text = await file.text();
     const id = file.name.replace(/\.md$/,'');
-    const title = (text.match(/^#\s+(.+)$/m)||[])[1]||id;
-    const links = extractWikilinks(text).map(l=>l.target);
-    const f = {id,title,tags:[],links,content:text,size:text.length,updated:Date.now()};
-    files = files.filter(x=>x.id!==id);
+    const title = extractTitle(text) || id;
+    const tags = extractTags(text);
+    const links = extractWikilinks(text).map(l => l.target);
+    const f = { id, title, tags, links, content: text, size: text.length, updated: Date.now() };
+    files = files.filter(x => x.id !== id);
     files.push(f);
     await dbPut(f);
   }
   renderFileList();
-  msg('g','✅ 已上传 '+e.target.files.length+' 个文件');
+  showMsg('g', `✅ 已上传 ${e.target.files.length} 个文件`);
 }
+
 async function loadSamples() {
-  if(SAMPLE_FILES.length===0){msg('w','样本未完整加载');return;}
-  for(const sf of SAMPLE_FILES){
-    const i = files.findIndex(f=>f.id===sf.id);
-    if(i>=0) files[i]=sf; else files.push(sf);
+  // Define sample files inline (truncated for space - full content loaded from embedded data)
+  const sampleIds = [
+    '国务院完善全国统一电力市场体系',
+    '发电侧容量电价机制',
+    '电力中长期市场基本规则',
+    '虚拟电厂',
+    '绿电交易',
+    '辅助服务',
+    '需求响应',
+    '江苏省电力现货市场连续结算',
+    '广东独立储能交易细则',
+    '浙江分布式新能源聚合'
+  ];
+  
+  if (SAMPLE_FILES.length === 0) {
+    showMsg('w','示例文件数据未完全嵌入，部分功能受限');
+    return;
+  }
+  
+  for (const sf of SAMPLE_FILES) {
+    const existing = files.findIndex(f => f.id === sf.id);
+    if (existing >= 0) files[existing] = sf;
+    else files.push(sf);
     await dbPut(sf);
   }
+  
   renderFileList();
-  msg('g','✅ 已加载 '+SAMPLE_FILES.length+' 个示例文件');
+  showMsg('g', `✅ 已加载 ${SAMPLE_FILES.length} 个示例文件`);
 }
+
+function extractTitle(text) {
+  const m = text.match(/^#\s+(.+)$/m);
+  return m ? m[1].trim() : '';
+}
+
+function extractTags(text) {
+  const m = text.match(/tags:\s*\[([^\]]+)\]/);
+  return m ? m[1].split(',').map(t => t.trim()) : [];
+}
+
 async function clearAll() {
-  if(!confirm('确定清空所有文件？')) return;
-  await dbClear(); files=[]; renderFileList(); msg('i','已清空');
+  if (!confirm('确定清空所有已存储的文件？')) return;
+  await dbClear();
+  files = [];
+  renderFileList();
+  showMsg('i','已清空');
 }
+
 function renderFileList() {
   const el = document.getElementById('file-list');
-  const st = document.getElementById('file-stats');
-  if(files.length===0){
-    el.innerHTML='<div style="color:var(--t2);font-size:12px;padding:20px;text-align:center">暂无文件</div>';
-    st.innerHTML=''; return;
+  const stats = document.getElementById('file-stats');
+  if (files.length === 0) {
+    el.innerHTML = '<div style="color:var(--t2);font-size:12px;padding:20px;text-align:center">暂无文件</div>';
+    stats.innerHTML = '';
+    return;
   }
-  el.innerHTML = files.map(f =>
-    '<div class="fc" onclick="openFile(\''+f.id.replace(/'/g,"\\'")+'\')">'+
-    '<div><div class="fn">'+esc(f.title||f.id)+'</div><div class="fm">'+f.id.substring(0,40)+' · '+sz(f.size)+'</div></div>'+
-    '<div class="fl">🔗 '+(f.links||[]).length+'</div></div>'
+  
+  el.innerHTML = files.map(f => {
+    const linkCount = (f.links || []).length;
+    return '<div class="fc" onclick="openFile(\'' + f.id.replace(/'/g,"\\'") + '\')">' +
+      '<div><div class="fn">' + escapeHtml(f.title || f.id) + '</div>' +
+      '<div class="fm">' + f.id.substring(0,40) + ' · ' + formatSize(f.size) + '</div></div>' +
+      '<div class="fl">🔗 ' + linkCount + '</div></div>';
+  }).join('');
+  
+  const totalLinks = files.reduce((a,f) => a + (f.links||[]).length, 0);
+  stats.innerHTML = `📂 ${files.length} 个文件 · 🔗 ${totalLinks} 条双向链接 · 💾 本地持久化存储`;
+  
+  // Update selects
+  const sel = document.getElementById('ai-scope');
+  sel.innerHTML = '<option value="all">全部文件综合</option>' + files.map(f =>
+    '<option value="' + f.id + '">' + (f.title || f.id) + '</option>'
   ).join('');
-  const tl = files.reduce((a,f)=>a+(f.links||[]).length,0);
-  st.innerHTML = '📂 '+files.length+' 个文件 · 🔗 '+tl+' 条链接 · 💾 本地持久化';
 }
+
 function openFile(id) {
-  const f = files.find(x=>x.id===id);
-  if(!f) return;
-  document.getElementById('preview-card').style.display='block';
-  document.getElementById('preview-title').textContent = '📖 '+(f.title||f.id);
+  const f = files.find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('preview-card').style.display = 'block';
+  document.getElementById('preview-title').textContent = '📖 ' + (f.title || f.id);
   document.getElementById('preview-content').innerHTML = renderWikiContent(f.content, files);
 }
+
 function openWikilink(target) {
-  let f = files.find(x=>x.id===target||x.title===target);
-  if(!f) f = files.find(x=>x.id.includes(target)||(x.title&&x.title.includes(target)));
-  if(f){ openFile(f.id); }else{ msg('w','文件"'+target+'"未加载'); }
+  // Find file by id, title, or partial match
+  let f = files.find(x => x.id === target || x.title === target);
+  if (!f) f = files.find(x => x.id.includes(target) || x.title.includes(target));
+  if (f) {
+    openFile(f.id);
+    document.querySelector('[data-t="files"]').click();
+  } else {
+    showMsg('w', `文件 "${target}" 未加载`);
+  }
 }
 
-// ======================== QUERY ========================
-async function runQuery() {
-  const k = document.getElementById('q-apikey').value.trim();
-  if(!k){alert('请粘贴DeepSeek API Key');return;}
-  const pv = document.getElementById('q-province').value;
-  const tp = document.getElementById('q-topic').value;
-  document.getElementById('q-progress').style.display='block';
-  document.getElementById('q-result').style.display='none';
-  document.getElementById('q-status').textContent='正在分析 '+pv+' '+tp+' 政策...';
-  try{
-    const r = await fetch('https://api.deepseek.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-      body:JSON.stringify({
-        model:'deepseek-chat',
-        messages:[{role:'system',content:'你是一位资深中国电力市场政策分析师。分析维度：1)交易规则（限价/结算/偏差考核） 2)企业成本影响（峰谷价差/尖峰电价/高耗能政策） 3)用户侧机会（VPP/储能/需求响应） 4)综合评估与行动建议。输出Markdown格式。'},
-          {role:'user',content:'以下是'+pv+tp+'相关政策：\n\n'+SAMPLE_POLICY_STR.slice(0,5000)+'\n\n请分析。'}],
-        temperature:0.2,max_tokens:4096
+// ======================== KNOWLEDGE GRAPH ========================
+function renderGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = canvas.parentElement.clientWidth || 600;
+  canvas.height = 480;
+  const ctx = canvas.getContext('2d');
+  
+  if (files.length === 0) {
+    ctx.fillStyle = '#9aa0b0'; ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('无数据，请先加载示例文件', canvas.width/2, canvas.height/2);
+    return;
+  }
+  
+  // Build nodes and edges
+  const nodes = files.map((f,i) => ({
+    id: f.id, label: (f.title || f.id).substring(0,18), index: i,
+    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+    vx: 0, vy: 0, r: 8 + Math.min(20, (f.links||[]).length) * 1.5
+  }));
+  
+  const nodeMap = {};
+  nodes.forEach(n => nodeMap[n.id] = n);
+  
+  const edges = [];
+  files.forEach(f => {
+    (f.links || []).forEach(target => {
+      const targetNode = nodeMap[target] || nodes.find(n => n.id.includes(target) || (n.label && n.label.includes(target)));
+      if (targetNode && targetNode.id !== f.id) {
+        edges.push({ source: nodeMap[f.id], target: targetNode });
+      }
+    });
+  });
+  
+  // Remove duplicates
+  const edgeSet = new Set();
+  const uniqueEdges = [];
+  edges.forEach(e => {
+    const key = [e.source.id, e.target.id].sort().join('|||');
+    if (!edgeSet.has(key)) { edgeSet.add(key); uniqueEdges.push(e); }
+  });
+  
+  // Stats
+  document.getElementById('graph-stats').innerHTML = [
+    '<div class="sc"><div class="v p">' + nodes.length + '</div><div class="l">节点(文件)</div></div>',
+    '<div class="sc"><div class="v g">' + uniqueEdges.length + '</div><div class="l">连线(链接)</div></div>',
+    '<div class="sc"><div class="v o">' + (uniqueEdges.length / Math.max(1, nodes.length)).toFixed(1) + '</div><div class="l">密度</div></div>',
+    '<div class="sc"><div class="v">' + Math.max(...nodes.map(n=>n.r)) + '</div><div class="l">最大节点</div></div>'
+  ].join('');
+  
+  const topLinked = [...nodes].sort((a,b) => b.r - a.r).slice(0,5);
+  document.getElementById('graph-detail').innerHTML =
+    '🏆 被引用最多: ' + topLinked.map(n => n.label).join(' → ');
+  
+  // Force-directed layout simulation
+  let iterations = 0;
+  const maxIter = 150;
+  const W = canvas.width, H = canvas.height;
+  
+  function simulate() {
+    if (iterations >= maxIter) { render(); return; }
+    
+    // Repulsion (all pairs)
+    const k = 80;
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i+1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        let dx = b.x - a.x, dy = b.y - a.y;
+        let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        const force = k * k / dist;
+        const fx = dx / dist * force;
+        const fy = dy / dist * force;
+        a.vx -= fx; a.vy -= fy;
+        b.vx += fx; b.vy += fy;
+      }
+    }
+    
+    // Attraction (edges)
+    uniqueEdges.forEach(e => {
+      const a = e.source, b = e.target;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const force = dist * dist / (k * 30);
+      const fx = dx / dist * force;
+      const fy = dy / dist * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    });
+    
+    // Center gravity
+    const cx = W/2, cy = H/2;
+    nodes.forEach(n => {
+      n.vx += (cx - n.x) * 0.001;
+      n.vy += (cy - n.y) * 0.001;
+    });
+    
+    // Update positions
+    nodes.forEach(n => {
+      n.vx *= 0.85; n.vy *= 0.85; // damping
+      n.x += n.vx; n.y += n.vy;
+      n.x = Math.max(n.r, Math.min(W - n.r, n.x));
+      n.y = Math.max(n.r, Math.min(H - n.r, n.y));
+    });
+    
+    iterations++;
+    render();
+    requestAnimationFrame(simulate);
+  }
+  
+  let hoveredNode = null;
+  
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    
+    // Edges
+    ctx.strokeStyle = '#2d3148'; ctx.lineWidth = 1;
+    uniqueEdges.forEach(e => {
+      ctx.beginPath();
+      ctx.moveTo(e.source.x, e.source.y);
+      ctx.lineTo(e.target.x, e.target.y);
+      ctx.stroke();
+    });
+    
+    // Nodes
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = n === hoveredNode ? '#4fc3f7' : '#4fc3f788';
+      ctx.fill();
+      if (n === hoveredNode) {
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      }
+      ctx.fillStyle = '#e8eaed'; ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(n.label, n.x, n.y + n.r + 3);
+    });
+    
+    document.getElementById('graph-tip').textContent = 
+      hoveredNode ? '📍 ' + hoveredNode.label + ' · 连线 ' + 
+        uniqueEdges.filter(e => e.source === hoveredNode || e.target === hoveredNode).length + ' 条'
+      : '🔄 图谱自动布局中... 悬停节点查看详情';
+  }
+  
+  canvas.onmousemove = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const h = nodes.find(n => Math.hypot((mx*scaleX)-n.x, (my*scaleX)-n.y) < n.r + 5);
+    hoveredNode = h || null;
+    canvas.style.cursor = h ? 'pointer' : 'grab';
+    render();
+  };
+  
+  canvas.onclick = function(e) {
+    if (hoveredNode) {
+      openFile(hoveredNode.id);
+      document.querySelector('[data-t="files"]').click();
+    }
+  };
+  
+  // Reset and run
+  nodes.forEach(n => { n.vx = 0; n.vy = 0; });
+  iterations = 0;
+  simulate();
+}
+
+// ======================== READER ========================
+function renderReader() {
+  const el = document.getElementById('reader-file-list');
+  if (files.length === 0) {
+    el.innerHTML = '<p style="color:var(--t2)">无文件</p>';
+    return;
+  }
+  el.innerHTML = '<p style="color:var(--t2);margin-bottom:8px">点击文件在右侧阅读：</p>' +
+    files.map(f =>
+      '<div class="fc" onclick="readerOpen(\'' + f.id.replace(/'/g,"\\'") + '\')">' +
+      '<span class="fn">' + escapeHtml(f.title || f.id) + '</span>' +
+      '<span class="fl">' + (f.links||[]).length + ' 链接</span></div>'
+    ).join('');
+}
+
+function readerOpen(id) {
+  const f = files.find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('reader-title').textContent = '📖 ' + (f.title || f.id);
+  document.getElementById('reader-content').innerHTML = renderWikiContent(f.content, files);
+}
+
+// ======================== SEARCH ========================
+function searchFiles() {
+  const q = document.getElementById('search-q').value.trim().toLowerCase();
+  const el = document.getElementById('search-results');
+  if (!q || files.length === 0) {
+    el.innerHTML = '输入关键词开始搜索';
+    return;
+  }
+  
+  const results = files.filter(f => {
+    const c = (f.title + ' ' + f.id + ' ' + f.content).toLowerCase();
+    return c.includes(q);
+  });
+  
+  if (results.length === 0) {
+    el.innerHTML = '<p style="color:var(--t2)">未找到匹配</p>';
+    return;
+  }
+  
+  el.innerHTML = results.map(f => {
+    // Find context around match
+    const idx = f.content.toLowerCase().indexOf(q);
+    const start = Math.max(0, idx - 40);
+    const end = Math.min(f.content.length, idx + 80);
+    const context = (start > 0 ? '...' : '') + f.content.substring(start, end) + (end < f.content.length ? '...' : '');
+    return '<div class="fc" onclick="openFile(\'' + f.id.replace(/'/g,"\\'") + '\')">' +
+      '<div><div class="fn">' + escapeHtml(f.title || f.id) + '</div>' +
+      '<div class="fm" style="font-size:11px;color:var(--t2)">' + escapeHtml(context) + '</div></div></div>';
+  }).join('');
+}
+
+// ======================== AI ========================
+async function runAI() {
+  const key = document.getElementById('ai-key').value.trim();
+  if (!key) { showMsg('w','请粘贴API Key'); return; }
+  if (files.length === 0) { showMsg('w','请先加载文件'); return; }
+  
+  document.getElementById('ai-progress').style.display = 'block';
+  document.getElementById('ai-result').style.display = 'none';
+  document.getElementById('ai-status').textContent = '构建文件摘要...';
+  
+  const scope = document.getElementById('ai-scope').value;
+  const targetFiles = scope === 'all' ? files : files.filter(f => f.id === scope);
+  
+  // Build summary
+  const summary = targetFiles.map(f => ({
+    id: f.id, title: f.title || f.id, size: f.size,
+    links: (f.links||[]).slice(0,10),
+    contentPreview: f.content.replace(/^---[\s\S]*?---/,'').substring(0,800)
+  }));
+  
+  document.getElementById('ai-summary').innerHTML = [
+    '<div class="sc"><div class="v">' + summary.length + '</div><div class="l">文件数</div></div>',
+    '<div class="sc"><div class="v">' + summary.reduce((a,f) => a + (f.links||[]).length, 0) + '</div><div class="l">引用总数</div></div>',
+    '<div class="sc"><div class="v o">' + (summary.reduce((a,f) => a + f.size, 0) / 1024).toFixed(0) + '</div><div class="l">总KB</div></div>'
+  ].join('');
+  
+  document.getElementById('ai-status').textContent = '发送给 DeepSeek AI...';
+  
+  try {
+    const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          {role:'system',content:'你是一位资深电力市场政策分析师。请基于提供的政策文件列表进行综合分析。\n\n## 分析维度\n1. **政策全景**：覆盖哪些领域？各省份各有何特点？\n2. **关键趋势**：近期政策的核心方向是什么？\n3. **关联分析**：文件之间的双向链接揭示了哪些知识点关系？\n4. **用户侧影响**：这些政策对工商业用电企业和VPP运营商有何影响？\n5. **行动建议**：给出3-5条基于政策趋势的具体建议。\n\n输出格式：专业Markdown报告，分章节，关键数据加粗。'},
+          {role:'user',content:'以下是政策文件库摘要（共'+summary.length+'个文件）：\n```json\n'+JSON.stringify(summary,null,2).substring(0,12000)+'\n```\n\n请基于这些政策文件进行综合分析。'}
+        ],
+        temperature:0.3, max_tokens:4096
       })
     });
-    if(!r.ok)throw new Error(await r.text());
-    const d = await r.json();
-    const c = d.choices[0].message.content;
-    document.getElementById('q-progress').style.display='none';
-    document.getElementById('q-result').style.display='block';
-    document.getElementById('q-result-content').innerHTML =
-      '<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
-      c.replace(/### (.+)/g,'<h3 style="color:var(--ac);margin:16px 0 6px;font-size:14px">$1</h3>')
-       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--bd);padding-bottom:6px">$1</h2>')
-       .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
-       .replace(/\n/g,'<br>')+'</div>';
-  }catch(e){document.getElementById('q-progress').style.display='none';alert('❌ '+e.message);}
-}
-
-// ======================== CUSTOM UPLOAD ========================
-let upTexts=[];
-document.getElementById('md-files').onchange=function(){
-  upTexts=[]; const el=document.getElementById('upload-list'); el.innerHTML='';
-  Array.from(this.files).forEach(f=>{
-    const r=new FileReader();
-    r.onload=function(e){upTexts.push({n:f.name,c:e.target.result});el.innerHTML+='<div style="font-size:12px;color:var(--ac2)">✅ '+f.name+' ('+(e.target.result.length/1024).toFixed(1)+'KB)</div>';};
-    r.readAsText(f);
-  });
-};
-async function runCustom() {
-  const k=document.getElementById('custom-apikey').value.trim();
-  if(!k)return alert('请粘贴API Key');
-  const pt=document.getElementById('custom-prompt').value.trim();
-  let txt=document.getElementById('custom-text').value.trim();
-  if(upTexts.length) txt+='\n---\n'+upTexts.map(f=>'## '+f.n+'\n'+f.c.slice(0,3000)).join('\n');
-  if(!txt) txt=SAMPLE_POLICY_STR;
-  document.getElementById('custom-progress').style.display='block';
-  document.getElementById('custom-result').style.display='none';
-  try{
-    const r=await fetch('https://api.deepseek.com/v1/chat/completions',{
-      method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:'你是资深电力政策分析师。'+pt},{role:'user',content:txt.slice(0,8000)}],temperature:0.2,max_tokens:4096})
-    });
-    if(!r.ok)throw new Error(await r.text());
-    const d=await r.json();
-    document.getElementById('custom-progress').style.display='none';
-    document.getElementById('custom-result').style.display='block';
-    document.getElementById('custom-result-content').innerHTML='<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8">'+d.choices[0].message.content.replace(/\n/g,'<br>')+'</div>';
-  }catch(e){document.getElementById('custom-progress').style.display='none';alert('❌ '+e.message);}
-}
-
-// ======================== REMOTE LIBRARY ========================
-async function loadRemoteLibrary() {
-  msg('i','📡 正在从GitHub Pages加载全量政策库...');
-  try{
-    const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    if (!resp.ok) throw new Error(await resp.text());
     const data = await resp.json();
-    if(!data.files||data.files.length===0) throw new Error('无文件');
-    const total = data.files.length;
-    let loaded = 0;
-    for(const f of data.files){
-      const i = files.findIndex(x=>x.id===f.id);
-      if(i>=0) files[i]=f; else files.push(f);
-      await dbPut(f);
-      loaded++;
-      if(loaded%50===0) document.getElementById('file-stats').innerHTML = '⏳ '+loaded+'/'+total;
-    }
-    renderFileList();
-    msg('g','✅ 已加载 '+total+' 个政策文件（'+(data.total_links||0)+' 条链接）');
-  }catch(e){ msg('r','❌ 加载失败: '+e.message); }
-}
-
-// ======================== REPORT ========================
-function down(f){
-  const d=new Date().toISOString().substring(0,10);
-  const md='# 电力政策智能分析报告\n> 生成日期: '+d+' | 数据源: NAS 482份政策文件\n\n## 一、高频词热点\n\n| 排名 | 关键词 | 频次 |\n|------|--------|------|\n'+WF.slice(0,15).map((w,i)=>'| '+(i+1)+' | '+w.w+' | '+w.c+' |').join('\n')+'\n\n## 二、政策类型分布\n'+Object.entries(PT).map(([k,v])=>'- **'+k+'**: '+v+'份').join('\n')+'\n\n## 三、核心发现\n\n### 现货市场\n- 江苏日前均价 260-310元/MWh，峰谷价差仅0.06元/kWh\n- 申报上限1500元/MWh，出清96点/天\n- 苏南负荷密集区价格高于苏北5-10元/MWh\n\n### 用户侧机会\n- 储能+现货套利：午间充电、晚峰放电\n- VPP参与辅助服务：准入≥1MW\n- 需求响应补贴：2-5元/kW/次\n\n## 四、行动建议\n\n1. 建立精准负荷预测，管控偏差考核风险\n2. 配置储能参与现货+辅助服务双重收益\n3. 关注分时电价政策变化，优化用电策略\n4. 探索虚拟电厂聚合模式，聚合可调负荷\n5. 绿电交易满足消纳责任权重\n'.trim();
-  const blob=new Blob([f==='md'?md:'<!DOCTYPE html><html><head><meta charset=UTF-8><title>政策报告</title><style>body{font-family:Microsoft YaHei,sans-serif;max-width:210mm;margin:0 auto;padding:40px;color:#333;line-height:1.8}h1{color:#1a237e;border-bottom:3px solid #1a237e}h2{color:#1a237e;border-bottom:2px solid #e0e0e0;margin-top:24px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ddd;padding:6px 10px}th{background:#f5f5f5}
-/* Password field workaround - avoid GitHub Pages phishing flag */
-input.pwd{font-family:Verdana;letter-spacing:6px;-webkit-text-security:disc;text-security:disc}
-</style></head><body>'+md.replace(/\n/g,'<br>')+'</body></html>'],{type:f==='md'?'text/markdown':'text/html'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='政策报告_'+d+'.'+(f==='md'?'md':'html');a.click();
+    const content = data.choices[0].message.content;
+    
+    document.getElementById('ai-progress').style.display = 'none';
+    document.getElementById('ai-result').style.display = 'block';
+    document.getElementById('ai-content').innerHTML =
+      '<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">' +
+      content.replace(/### (.+)/g,'<h3 style="color:var(--ac);margin:16px 0 6px;font-size:14px">$1</h3>')
+        .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--bd);padding-bottom:6px">$1</h2>')
+        .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
+        .replace(/\n/g,'<br>')+'</div>';
+    showMsg('g','✅ AI分析完成');
+  } catch(e) {
+    document.getElementById('ai-progress').style.display = 'none';
+    showMsg('r','❌ '+e.message);
+  }
 }
 
 // ======================== UTILS ========================
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function sz(n){return n>1024?(n/1024).toFixed(1)+'KB':n+'B';}
-function msg(type,t){
-  const e=document.createElement('div');e.className='alert alert-'+type;
-  e.textContent=t;e.style.cssText='position:fixed;top:16px;right:16px;z-index:1000;min-width:240px';
-  document.querySelector('.ct').appendChild(e);setTimeout(()=>e.remove(),4000);
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
 }
+
+function formatSize(n) {
+  return n > 1024 ? (n/1024).toFixed(1)+'KB' : n+'B';
+}
+
+async function loadRemoteLibrary() {
+  showMsg('i', '📡 正在从 GitHub Pages 加载全量政策库...');
+  try {
+    const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data.files || data.files.length === 0) throw new Error('无文件');
+    const total = data.files.length;
+    let loaded = 0;
+    for (const f of data.files) {
+      const existing = files.findIndex(x => x.id === f.id);
+      if (existing >= 0) files[existing] = f;
+      else files.push(f);
+      await dbPut(f);
+      loaded++;
+      if (loaded % 50 === 0) document.getElementById('file-stats').innerHTML = '⏳ 加载中 ' + loaded + '/' + total;
+    }
+    renderFileList();
+    showMsg('g', '✅ 已加载 ' + total + ' 个政策文件（' + (data.total_links||0) + ' 条链接）');
+  } catch(e) {
+    showMsg('r', '❌ 加载失败: ' + e.message);
+  }
+}
+
+
+
+// ======================== UTILITIES ========================
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function formatSize(n) {
+  return n > 1024 ? (n/1024).toFixed(1)+'KB' : n+'B';
+}
+
+
+
+function showMsg(type, msg) {
+  const el = document.createElement('div');
+  el.className = 'alert alert-' + type;
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;top:16px;right:16px;z-index:1000;min-width:240px';
+  document.querySelector('.ct').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+
+// Override loadRemoteLibrary to use correct URL
+async function loadRemoteLibrary() {
+  showMsg('i', '📡 正在从 GitHub Pages 加载全量政策库...');
+  try {
+    const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (!data.files || data.files.length === 0) throw new Error('无文件');
+    const total = data.files.length;
+    let loaded = 0;
+    for (const f of data.files) {
+      const existing = files.findIndex(x => x.id === f.id);
+      if (existing >= 0) files[existing] = f;
+      else files.push(f);
+      await dbPut(f);
+      loaded++;
+      if (loaded % 50 === 0) document.getElementById('file-stats').innerHTML = '⏳ 加载中 ' + loaded + '/' + total;
+    }
+    renderFileList();
+    showMsg('g', '✅ 已加载 ' + total + ' 个政策文件（' + (data.total_links||0) + ' 条链接）');
+  } catch(e) {
+    showMsg('r', '❌ 加载失败: ' + e.message);
+  }
+}
+
+
+
+// ======================== FILE TAB EVENTS ========================
+// Add file tab to tab system
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    const tc = document.getElementById('tab-'+b.dataset.tab);
+    if(tc) tc.classList.add('active');
+    if(b.dataset.tab==='files') renderFileList();
+  });
+});
+
+// File handlers
+document.getElementById('upzone').onclick = () => document.getElementById('upfile').click();
+document.getElementById('upfile').onchange = handleUpload;
+document.getElementById('btn-samples').onclick = loadSamples;
+document.getElementById('btn-clear').onclick = clearAll;
+document.getElementById('btn-remote').onclick = loadRemoteLibrary;
 </script>
 </body>
 </html>
