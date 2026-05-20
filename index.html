@@ -1103,30 +1103,53 @@ async function runAI() {
   if (keywords.length === 0 && files.length <= 50) {
     matching = files;
   } else if (keywords.length === 0) {
-    matching = [...files].sort((a,b) => (b.links||[]).length - (a.links||[]).length).slice(0, 30);
+    matching = [...files].sort((a,b) => (b.links||[]).length - (a.links||[]).length).slice(0, 50);
   } else {
+    // ALL matching files — no cap
     matching = files.filter(f => {
-      const s = (f.title + ' ' + f.id + ' ' + (f.content||'')).toLowerCase();
+      const s = (f.title + ' ' + (f.content||'')).toLowerCase();
       return keywords.some(k => s.includes(k.toLowerCase()));
     });
     if (matching.length === 0) { msg('w','未找到与「' + pv + ' ' + tp + '」匹配的文件，请检查是否已加载相关区域的政策文件'); document.getElementById('q-progress').style.display = 'none'; return; }
-    if (matching.length > 30) matching = matching.slice(0, 30);
+    // Sort: title match (10x weight) > content match
+    matching.sort((a,b) => {
+      const at=(a.title||'').toLowerCase(), bt=(b.title||'').toLowerCase();
+      const ac=(a.content||'').toLowerCase(), bc=(b.content||'').toLowerCase();
+      let as=0, bs=0;
+      for (const k of keywords) {
+        if (at.includes(k)) as += 10;
+        if (bt.includes(k)) bs += 10;
+        if (ac.includes(k)) as += 1;
+        if (bc.includes(k)) bs += 1;
+      }
+      return bs - as;
+    });
   }
   
   if (matching.length === 0) { msg('w','未找到匹配文件'); return; }
   
-  // Build prompt with matching file summaries
+  // Build ALL file titles list for AI context
+  const titleList = matching.map(f => '- ' + escapeHtml(f.title||f.id)).join('\n');
+  
+  // Fill content: prioritize high-rank files, up to 12000 chars total
   let contentText = '';
+  let includedCount = 0;
+  const MAX_CONTENT = 12000;
   for (const f of matching) {
-    const preview = (f.content||'').replace(/^---[\s\S]*?---/,'').substring(0, 600);
+    const preview = (f.content||'').replace(/^---[\s\S]*?---/,'').substring(0, 1000);
     const add = '## ' + (f.title||f.id) + '\n' + preview + '\n\n';
-    if (contentText.length + add.length > 8000) break;
+    if (contentText.length + add.length > MAX_CONTENT) {
+      const remaining = matching.length - includedCount;
+      if (remaining > 0) contentText += `\n*(另有 ${remaining} 份相关文件未展示完整内容，见上方文件列表)*\n`;
+      break;
+    }
     contentText += add;
+    includedCount++;
   }
   
   document.getElementById('q-progress').style.display = 'block';
   document.getElementById('q-result').style.display = 'none';
-  document.getElementById('q-status').textContent = '正在分析 ' + pv + ' ' + tp + '（基于 ' + matching.length + ' 份文件）...';
+  document.getElementById('q-status').textContent = '正在分析 ' + pv + ' ' + tp + '（全量库命中 ' + matching.length + ' 份文件，已发送 ' + includedCount + ' 份完整内容）...';
   
   try {
     const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
@@ -1135,8 +1158,8 @@ async function runAI() {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          {role:'system',content:'您是一位资深中国电力市场政策分析师。用户选择分析范围：省份/区域=' + pv + '，主题=' + tp + '。请严格按照所选地区进行分析，不要引用或对比其他地区的政策。\n\n分析维度：\n1) 交易规则（限价/结算/偏差考核）\n2) 企业成本影响（峰谷价差/尖峰电价/高耗能政策）\n3) 用户侧机会（VPP/储能/需求响应）\n4) 综合评估与行动建议\n\n重要约束：请严格基于用户提供的文件内容进行分析，不要自行补充其他地区的政策信息。输出专业Markdown格式报告。'},
-          {role:'user',content:'以下是匹配的政策文件（' + matching.length + '份，' + pv + ' / ' + tp + '）：\n\n' + contentText + '\n\n请基于以上文件进行专业政策分析。'}
+          {role:'system',content:'您是一位资深中国电力市场政策分析师。用户选择分析范围：省份/区域=' + pv + '，主题=' + tp + '。\n\n全量文件库搜索命中 ' + matching.length + ' 份相关文件，文件标题列表如下：\n' + titleList + '\n\n其中完整内容已附上 ' + includedCount + ' 份（按相关性排序）。\n\n分析要求：\n1) 严格基于上述文件内容进行分析\n2) 只分析所选地区（' + pv + '）的政策，不要对比其他地区\n3) 如果文件内容与所选地区/主题不符，请如实说明\n4) 分析维度：交易规则 | 企业成本影响 | 用户侧机会 | 综合建议\n5) 输出专业Markdown格式报告'},
+          {role:'user',content:'全量文件库命中 ' + matching.length + ' 份与「' + pv + ' ' + tp + '」相关的政策文件，以下是按相关性排序的文件内容（已展示 ' + includedCount + ' 份）：\n\n' + contentText + '\n\n请基于以上文件进行专业政策分析。如果文件内容不足以支撑分析所选地区，请如实说明。'}
         ],
         temperature: 0.2, max_tokens: 4096
       })
