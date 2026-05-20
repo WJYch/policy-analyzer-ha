@@ -94,6 +94,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <button class="tab-btn active" data-tab="query">🔍 政策查询</button>
   <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
   <button class="tab-btn" data-tab="upload">📂 自定义</button>
+  <button class="tab-btn" data-tab="files">📂 文件库</button>
   <button class="tab-btn" data-tab="report">📄 报告</button>
 </div>
 
@@ -254,7 +255,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div id="report-content" style="color:var(--text-secondary);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
 </div>
 
-
 <!-- ===== TAB: FILES ===== -->
 <div class="tab-content" id="tab-files">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
@@ -267,7 +267,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-primary" id="btn-samples">📦 加载示例文件</button>
         <button class="btn btn-secondary" id="btn-clear">🗑️ 清空数据</button>
-        <button class="btn" id="btn-remote" style="background:#ba68c8;color:#000">📡 加载全量库</button>
+        <button class="btn" id="btn-remote" style="background:var(--ap,#ba68c8);color:#000">📡 加载全量库</button>
       </div>
       <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--text-secondary)"></div>
     </div>
@@ -276,7 +276,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       <div id="file-list"><div style="color:var(--text-secondary);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
     </div>
   </div>
-  <div class="card nop" id="preview-card" style="display:none">
+  <div class="card" id="preview-card" style="display:none">
     <h2 id="preview-title">📖 预览</h2>
     <div id="preview-content" class="fcr"></div>
   </div>
