@@ -91,7 +91,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="files">📂 文件库</button>
+  <button class="tab-btn" data-tab="files">📂 文件库</button>
+  <button class="tab-btn" data-tab="price">⚡ 电价监控</button>
   <button class="tab-btn" data-tab="query">🔍 政策查询</button>
   <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
   <button class="tab-btn" data-tab="upload">📂 自定义</button>
@@ -133,6 +134,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   <div class="card" id="preview-card" style="display:none">
     <h2 id="preview-title">📖 预览</h2>
     <div id="preview-content" class="fcr"></div>
+  </div>
+</div>
+<!-- ===== TAB: PRICE ===== -->
+<div class="tab-content" id="tab-price">
+  <div class="grid-2">
+    <div class="card">
+      <h2>⚡ 电价监控面板</h2>
+      <p style="margin-bottom:12px">数据来源：InfluxDB（<span id="price-updated">加载中...</span>）</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="price-province" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:6px 10px;font-size:12px">
+          <option value="江苏" selected>江苏</option>
+        </select>
+        <select id="price-type" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:6px 10px;font-size:12px">
+          <option value="spot" selected>⚡ 现货日前</option>
+          <option value="spot_rt">🔴 现货实时</option>
+          <option value="agent">📊 代理购电（月）</option>
+          <option value="mid_long">📈 中长期（月）</option>
+        </select>
+        <select id="price-range" style="background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:6px 10px;font-size:12px">
+          <option value="1">最近 1 天</option>
+          <option value="3">最近 3 天</option>
+          <option value="7" selected>最近 7 天</option>
+          <option value="30">最近 30 天</option>
+        </select>
+        <button class="btn btn-secondary" id="btn-price-refresh" style="padding:6px 14px;font-size:12px">🔄 刷新数据</button>
+      </div>
+      <div class="chart-container" style="height:360px"><canvas id="price-chart"></canvas></div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;text-align:center" id="price-stats"></div>
+    </div>
+    <div class="card">
+      <h2>📋 电价说明</h2>
+      <p style="font-size:12px;line-height:1.7">
+        <b>现货日前电价</b>：各省电力交易中心发布的日前市场出清价格，15min/30min 粒度。<br>
+        <b>现货实时电价</b>：实时市场出清价格，波动大于日前。<br>
+        <b>代理购电价格</b>：电网企业每月公布的代理购电价格，按月更新，可回溯 ~24 个月。<br>
+        <b>中长期电价</b>：月度中长期交易均价，数据量较少。<br><br>
+        数据由定时任务从 NAS InfluxDB 抓取更新。
+      </p>
+    </div>
+  </div>
+  <div class="card" id="price-compare" style="display:none">
+    <h2>📊 日前 vs 实时对比</h2>
+    <div class="chart-container" style="height:280px"><canvas id="price-compare-chart"></canvas></div>
   </div>
 </div>
 <div class="tab-content" id="tab-query">
@@ -1235,6 +1279,227 @@ async function loadRemoteLibrary() {
 
 function msg(type,t){showMsg(type,t);}
 
+// ======================== PRICE CHART ========================
+let PRICE_DATA = null;
+let PRICE_CHART_INSTANCE = null;
+let PRICE_COMPARE_INSTANCE = null;
+
+async function initPriceChart() {
+  if (!PRICE_DATA) {
+    document.getElementById('price-updated').textContent = '加载数据中...';
+    try {
+      const r = await fetch('price_data.json?t=' + Date.now());
+      PRICE_DATA = await r.json();
+    } catch(e) {
+      document.getElementById('price-updated').textContent = '❌ 数据加载失败: ' + e.message;
+      return;
+    }
+  }
+  renderPriceChart();
+  document.getElementById('btn-price-refresh').onclick = () => {
+    PRICE_DATA = null;
+    initPriceChart();
+  };
+  document.getElementById('price-province').onchange = renderPriceChart;
+  document.getElementById('price-type').onchange = renderPriceChart;
+  document.getElementById('price-range').onchange = renderPriceChart;
+}
+
+function renderPriceChart() {
+  if (!PRICE_DATA) return;
+  
+  const prov = document.getElementById('price-province').value;
+  const type = document.getElementById('price-type').value;
+  const range = parseInt(document.getElementById('price-range').value);
+  
+  document.getElementById('price-updated').textContent = '更新于 ' + PRICE_DATA.generated_at;
+  
+  const spot = PRICE_DATA.spot.find(s => s.province === prov);
+  const agent = PRICE_DATA.agent.find(a => a.province === prov);
+  const midLong = PRICE_DATA.mid_long.find(m => m.province === prov);
+  
+  const ctx = document.getElementById('price-chart').getContext('2d');
+  const compareCtx = document.getElementById('price-compare-chart').getContext('2d');
+  
+  // Destroy old charts
+  if (PRICE_CHART_INSTANCE) { PRICE_CHART_INSTANCE.destroy(); PRICE_CHART_INSTANCE = null; }
+  if (PRICE_COMPARE_INSTANCE) { PRICE_COMPARE_INSTANCE.destroy(); PRICE_COMPARE_INSTANCE = null; }
+  document.getElementById('price-compare').style.display = 'none';
+  
+  const colors = { day_ahead: '#4fc3f7', real_time: '#e57373' };
+  const colorBg = { day_ahead: 'rgba(79,195,247,0.1)', real_time: 'rgba(229,115,115,0.1)' };
+  
+  if (type === 'spot' || type === 'spot_rt') {
+    // Spot price line chart
+    const priceKey = type === 'spot' ? 'day_ahead' : 'real_time';
+    const records = spot ? spot[priceKey] || [] : [];
+    
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - range * 24 * 60 * 60 * 1000);
+    const filtered = records.filter(r => new Date(r.t.replace(' ', 'T') + ':00') >= cutoff);
+    
+    const labels = filtered.map(r => r.t);
+    const prices = filtered.map(r => r.p);
+    
+    if (filtered.length === 0) {
+      document.getElementById('price-stats').textContent = '⚠️ 所选时段无数据（现货数据覆盖约 ' + (spot ? spot[priceKey].length : 0) + ' 条记录）';
+      if (PRICE_CHART_INSTANCE) PRICE_CHART_INSTANCE.destroy();
+      return;
+    }
+    
+    const avg = (prices.reduce((a,b) => a+b, 0) / prices.length).toFixed(1);
+    const min = Math.min(...prices).toFixed(1);
+    const max = Math.max(...prices).toFixed(1);
+    
+    document.getElementById('price-stats').textContent = `📊 ${prov} 现货${type === 'spot' ? '日前' : '实时'} · 均价 ${avg} 元/MWh · 最低 ${min} · 最高 ${max} · ${filtered.length} 个数据点`;
+    
+    PRICE_CHART_INSTANCE = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: type === 'spot' ? '日前电价' : '实时电价',
+          data: prices,
+          borderColor: colors[priceKey],
+          backgroundColor: colorBg[priceKey],
+          borderWidth: 1.5,
+          fill: true,
+          tension: 0.2,
+          pointRadius: 0,
+          pointHitRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#9aa0b0', font: { size: 11 } } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { 
+            ticks: { color: '#9aa0b0', font: { size: 9 }, maxTicksLimit: 12, maxRotation: 45 },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          },
+          y: {
+            ticks: { color: '#9aa0b0', font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.08)' },
+            title: { display: true, text: '元/MWh', color: '#9aa0b0', font: { size: 10 } }
+          }
+        },
+        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      }
+    });
+    
+    // Show compare chart if both day_ahead and real_time data exist
+    if (type === 'spot_rt' && spot && spot.day_ahead.length > 0 && spot.real_time.length > 0) {
+      document.getElementById('price-compare').style.display = 'block';
+      const daFiltered = spot.day_ahead.filter(r => new Date(r.t.replace(' ', 'T') + ':00') >= cutoff);
+      const rtFiltered = spot.real_time.filter(r => new Date(r.t.replace(' ', 'T') + ':00') >= cutoff);
+      
+      // Align by time
+      const timeMap = {};
+      daFiltered.forEach(r => { timeMap[r.t] = { da: r.p }; });
+      rtFiltered.forEach(r => {
+        if (!timeMap[r.t]) timeMap[r.t] = {};
+        timeMap[r.t].rt = r.p;
+      });
+      
+      const times = Object.keys(timeMap).sort();
+      const daData = times.map(t => timeMap[t].da || null);
+      const rtData = times.map(t => timeMap[t].rt || null);
+      
+      PRICE_COMPARE_INSTANCE = new Chart(compareCtx, {
+        type: 'line',
+        data: {
+          labels: times,
+          datasets: [
+            { label: '日前', data: daData, borderColor: '#4fc3f7', borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+            { label: '实时', data: rtData, borderColor: '#e57373', borderWidth: 1.5, pointRadius: 0, tension: 0.2 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9aa0b0', font: { size: 11 } } } },
+          scales: {
+            x: { ticks: { color: '#9aa0b0', font: { size: 9 }, maxTicksLimit: 10, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#9aa0b0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.08)' }, title: { display: true, text: '元/MWh', color: '#9aa0b0', font: { size: 10 } } }
+          }
+        }
+      });
+    }
+    
+  } else if (type === 'agent') {
+    // Monthly agent purchasing price bar chart
+    const records = agent ? agent.records || [] : [];
+    if (records.length === 0) {
+      document.getElementById('price-stats').textContent = '⚠️ 无代理购电数据';
+      if (PRICE_CHART_INSTANCE) PRICE_CHART_INSTANCE.destroy();
+      return;
+    }
+    
+    const labels = records.map(r => r.t);
+    const prices = records.map(r => r.purchasingPrice !== undefined ? (r.purchasingPrice * 1000) : null); // 元/kWh → 元/MWh
+    
+    document.getElementById('price-stats').textContent = `📊 ${prov} 代理购电价格 · ${records.length} 个月 · 单位：元/MWh（原始数据元/kWh × 1000）`;
+    
+    PRICE_CHART_INSTANCE = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: '代理购电价格',
+          data: prices,
+          backgroundColor: 'rgba(129,199,132,0.6)',
+          borderColor: '#81c784',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#9aa0b0', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#9aa0b0', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#9aa0b0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.08)' }, title: { display: true, text: '元/MWh', color: '#9aa0b0', font: { size: 10 } } }
+        }
+      }
+    });
+    
+  } else if (type === 'mid_long') {
+    const records = midLong ? midLong.records || [] : [];
+    if (records.length === 0) {
+      document.getElementById('price-stats').textContent = '⚠️ 无中长期数据';
+      if (PRICE_CHART_INSTANCE) PRICE_CHART_INSTANCE.destroy();
+      return;
+    }
+    
+    const labels = records.map(r => r.t);
+    const prices = records.map(r => r.p);
+    
+    document.getElementById('price-stats').textContent = `📈 ${prov} 中长期电价 · ${records.length} 条`;
+    
+    PRICE_CHART_INSTANCE = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: '中长期电价',
+          data: prices,
+          backgroundColor: 'rgba(255,183,77,0.6)',
+          borderColor: '#ffb74d',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: '#9aa0b0', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: '#9aa0b0', font: { size: 9 }, maxRotation: 45 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+          y: { ticks: { color: '#9aa0b0', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.08)' }, title: { display: true, text: '元/MWh', color: '#9aa0b0', font: { size: 10 } } }
+        }
+      }
+    });
+  }
+}
 
 // ======================== FILE TAB EVENTS ========================
 // Add file tab to tab system
@@ -1247,6 +1512,7 @@ document.querySelectorAll('.tab-btn').forEach(b=>{
     if(tc) tc.classList.add('active');
     if(b.dataset.tab==='files') renderFileList();
     if(b.dataset.tab==='nlp') { renderCloud(); renderFreq(); renderPie(); }
+    if(b.dataset.tab==='price') { if(!window.__priceInit) { initPriceChart(); window.__priceInit=true; } else { renderPriceChart(); } }
   });
 });
 
