@@ -843,11 +843,13 @@ function renderFileList() {
   const totalLinks = files.reduce((a,f) => a + (f.links||[]).length, 0);
   stats.innerHTML = `📂 ${files.length} 个文件 · 🔗 ${totalLinks} 条双向链接 · 💾 本地持久化存储`;
   
-  // Update selects
+  // Update selects (if scope selector exists)
   const sel = document.getElementById('ai-scope');
-  sel.innerHTML = '<option value="all">全部文件综合</option>' + files.map(f =>
-    '<option value="' + f.id + '">' + (f.title || f.id) + '</option>'
-  ).join('');
+  if (sel) {
+    sel.innerHTML = '<option value="all">全部文件综合</option>' + files.map(f =>
+      '<option value="' + f.id + '">' + (f.title || f.id) + '</option>'
+    ).join('');
+  }
 }
 
 function openFile(id) {
