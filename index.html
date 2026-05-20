@@ -209,9 +209,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       </div>
     </div>
     <div class="card">
-      <h2>📋 内置样本数据</h2>
-      <p>预置江苏省现货电价深度分析报告（从NAS 483份政策文件中精选）。</p>
-      <div style="background:var(--bg-input);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
+      <h2>📋 分析说明</h2>
+      <p>AI分析基于文件库中已加载的文件内容。选择省份/区域和分析主题后，系统会自动匹配相关文件作为分析依据。</p>
+      <div style="background:var(--bg-input);padding:12px;border-radius:6px;margin-top:8px;font-size:11px;line-height:1.6;color:var(--accent3)" id="sample-preview">
+        <b>💡 使用流程：</b><br>
+        1️⃣ 先在「文件库」标签页等待全量库加载完成<br>
+        2️⃣ 回到此页面选择省份/区域 + 分析主题<br>
+        3️⃣ 粘贴 DeepSeek API Key 并点击 AI 分析<br>
+        4️⃣ 分析结果将仅基于匹配文件，不混入无关数据
+      </div>
     </div>
   </div>
   <div class="card" id="q-result" style="display:none">
@@ -401,38 +407,7 @@ function renderPie(){
 }
 
 // ======== QUERY ========
-document.getElementById('btn-query').onclick = async ()=>{
-  const k = document.getElementById('q-apikey').value.trim();
-  if(!k){return alert('请粘贴 DeepSeek API Key');}
-  const pv = document.getElementById('q-province').value;
-  const tp = document.getElementById('q-topic').value;
-  document.getElementById('q-progress').style.display='block';
-  document.getElementById('q-result').style.display='none';
-  document.getElementById('q-status').textContent='正在分析 '+pv+' '+tp+' 政策...';
-  try{
-    const r = await fetch('https://api.deepseek.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-      body:JSON.stringify({
-        model:'deepseek-chat',
-        messages:[{role:'system',content:'你是一位资深中国电力市场政策分析师。分析维度：1)交易规则（限价/结算/偏差考核） 2)企业成本影响（峰谷价差/尖峰电价/高耗能政策） 3)用户侧机会（VPP/储能/需求响应） 4)综合评估与行动建议。输出Markdown格式。'},
-          {role:'user',content:'以下是'+pv+tp+'相关政策文件内容：\n\n'+SAMPLE_POLICY.slice(0,5000)+'\n\n请分析。'}],
-        temperature:0.2,max_tokens:4096
-      })
-    });
-    if(!r.ok)throw new Error(await r.text());
-    const d = await r.json();
-    const c = d.choices[0].message.content;
-    document.getElementById('q-progress').style.display='none';
-    document.getElementById('q-result').style.display='block';
-    document.getElementById('q-result-content').innerHTML =
-      '<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
-      c.replace(/### (.+)/g,'<h3 style="color:var(--accent);margin:16px 0 6px;font-size:14px">$1</h3>')
-       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px">$1</h2>')
-       .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
-       .replace(/\n/g,'<br>')+'</div>';
-  }catch(e){document.getElementById('q-progress').style.display='none';alert('❌ '+e.message);}
-};
+document.getElementById('btn-query').onclick = runAI;
 
 // ======== CUSTOM ========
 document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
@@ -774,9 +749,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btn-search').onclick = searchFiles;
   document.getElementById('search-q').onkeydown = e => { if(e.key==='Enter') searchFiles(); };
   
-  // Load samples if empty
-  if (files.length === 0) await loadSamples();
-  else renderFileList();
+  // Auto-load full library
+  if (files.length === 0) {
+    document.getElementById('file-list').innerHTML = '<div style="color:var(--text-secondary);font-size:12px;padding:20px;text-align:center">⏳ 自动加载全量库中 (482个文件)...</div>';
+    await loadRemoteLibrary();
+  } else {
+    renderFileList();
+  }
 });
 
 // ======================== FILE MANAGEMENT ========================
@@ -1135,7 +1114,7 @@ async function runAI() {
       const s = (f.title + ' ' + f.id + ' ' + (f.content||'')).toLowerCase();
       return keywords.some(k => s.includes(k.toLowerCase()));
     });
-    if (matching.length === 0) matching = files.slice(0, 20);
+    if (matching.length === 0) { msg('w','未找到与「' + pv + ' ' + tp + '」匹配的文件，请检查是否已加载相关区域的政策文件'); document.getElementById('q-progress').style.display = 'none'; return; }
     if (matching.length > 30) matching = matching.slice(0, 30);
   }
   
@@ -1161,7 +1140,7 @@ async function runAI() {
       body: JSON.stringify({
         model: 'deepseek-chat',
         messages: [
-          {role:'system',content:'你是一位资深中国电力市场政策分析师。用户选择省份/区域: ' + pv + '，主题: ' + tp + '。\n\n分析维度：\n1) 交易规则（限价/结算/偏差考核）\n2) 企业成本影响（峰谷价差/尖峰电价/高耗能政策）\n3) 用户侧机会（VPP/储能/需求响应）\n4) 综合评估与行动建议\n\n输出专业Markdown格式报告，首段加粗概括核心结论。'},
+          {role:'system',content:'您是一位资深中国电力市场政策分析师。用户选择分析范围：省份/区域=' + pv + '，主题=' + tp + '。请严格按照所选地区进行分析，不要引用或对比其他地区的政策。\n\n分析维度：\n1) 交易规则（限价/结算/偏差考核）\n2) 企业成本影响（峰谷价差/尖峰电价/高耗能政策）\n3) 用户侧机会（VPP/储能/需求响应）\n4) 综合评估与行动建议\n\n重要约束：请严格基于用户提供的文件内容进行分析，不要自行补充其他地区的政策信息。输出专业Markdown格式报告。'},
           {role:'user',content:'以下是匹配的政策文件（' + matching.length + '份，' + pv + ' / ' + tp + '）：\n\n' + contentText + '\n\n请基于以上文件进行专业政策分析。'}
         ],
         temperature: 0.2, max_tokens: 4096
