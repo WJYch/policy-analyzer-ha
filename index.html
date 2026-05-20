@@ -745,9 +745,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('btn-samples').onclick = loadSamples;
   document.getElementById('btn-clear').onclick = clearAll;
   document.getElementById('btn-remote').onclick = loadRemoteLibrary;
-  document.getElementById('btn-ai').onclick = runAI;
-  document.getElementById('btn-search').onclick = searchFiles;
-  document.getElementById('search-q').onkeydown = e => { if(e.key==='Enter') searchFiles(); };
+  // btn-ai and btn-search are bound at QUERY section level (line 410)
+  // auto-load handled below
   
   // Auto-load full library
   if (files.length === 0) {
@@ -1211,7 +1210,7 @@ async function loadRemoteLibrary() {
   el.className = 'alert alert-' + type;
   el.textContent = msg;
   el.style.cssText = 'position:fixed;top:16px;right:16px;z-index:1000;min-width:240px';
-  document.querySelector('.ct').appendChild(el);
+  document.querySelector('.container')?.appendChild(el) || document.body.appendChild(el);
   setTimeout(() => el.remove(), 4000);
 }
 
