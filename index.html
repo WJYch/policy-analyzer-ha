@@ -6,247 +6,236 @@
 <title>电力政策智能分析 · HA 版</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg-primary:#0f1117;--bg-secondary:#1a1d28;--bg-card:#222639;--bg-input:#1e2235;--text-primary:#e8eaed;--text-secondary:#9aa0b0;--accent:#4fc3f7;--accent2:#81c784;--accent3:#ffb74d;--accent-red:#e57373;--border:#2d3148;--radius:12px;--radius-sm:8px}
+:root{--bg1:#0f1117;--bg2:#1a1d28;--bg3:#222639;--bg4:#1e2235;--t1:#e8eaed;--t2:#9aa0b0;--ac:#4fc3f7;--ac2:#81c784;--ac3:#ffb74d;--ar:#e57373;--ap:#ba68c8;--bd:#2d3148;--r:12px;--rs:8px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.6}
-.header{background:linear-gradient(135deg,#1a237e,#0d47a1,#01579b);padding:24px 32px}
-.header h1{font-size:24px;color:#fff}.header h1 span{color:var(--accent)}
-.header p{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px}
-.tabs{display:flex;background:var(--bg-secondary);border-bottom:1px solid var(--border);overflow-x:auto}
-.tab-btn{padding:12px 20px;background:none;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
-.tab-btn:hover{color:var(--text-primary);background:rgba(255,255,255,.05)}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(79,195,247,.08)}
-.container{max-width:1200px;margin:0 auto;padding:16px}
-.tab-content{display:none}.tab-content.active{display:block}
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
-.card h2{font-size:16px;font-weight:600;margin-bottom:14px}.card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--accent)}
-.card p{color:var(--text-secondary);font-size:13px;margin-bottom:8px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;outline:none}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-group textarea{font-size:12px;resize:vertical;min-height:60px;font-family:'Courier New',monospace}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:#6dd0fa}
-.btn-secondary{background:var(--border);color:var(--text-primary)}
-.btn-success{background:var(--accent2);color:#000}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg1);color:var(--t1);min-height:100vh;line-height:1.6}
+.hdr{background:linear-gradient(135deg,#1a237e,#0d47a1,#01579b);padding:24px 32px}
+.hdr h1{font-size:24px;color:#fff}.hdr h1 span{color:var(--ac)}.hdr p{color:rgba(255,255,255,.7);font-size:13px;margin-top:4px}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bd);overflow-x:auto}
+.tb{padding:12px 20px;background:none;border:none;color:var(--t2);font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tb:hover{color:var(--t1);background:rgba(255,255,255,.05)}
+.tb.active{color:var(--ac);border-bottom-color:var(--ac);background:rgba(79,195,247,.08)}
+.ct{max-width:1200px;margin:0 auto;padding:16px}
+.tc{display:none}.tc.active{display:block}
+.card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:14px}.card h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--ac)}
+.card p{color:var(--t2);font-size:13px;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(orientation:portrait),(max-width:860px){.g2,.g3{grid-template-columns:1fr!important}.ct{padding:10px}.card{padding:14px}}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--t2)}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;background:var(--bg4);border:1px solid var(--bd);border-radius:var(--rs);color:var(--t1);font-size:13px;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--ac)}
+.fg textarea{font-size:12px;resize:vertical;min-height:60px;font-family:'Courier New',monospace}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-p{background:var(--ac);color:#000}.btn-p:hover{background:#6dd0fa}
+.btn-s{background:var(--bd);color:var(--t1)}.btn-g{background:var(--ac2);color:#000}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.alert{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px}
-.alert-info{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--accent)}
-.alert-success{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.3);color:var(--accent2)}
-.alert-warning{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:var(--accent3)}
-.alert-error{background:rgba(229,115,115,.12);border:1px solid rgba(229,115,115,.3);color:var(--accent-red)}
-.stat-row{display:flex;gap:12px;flex-wrap:wrap}
-.stat-card{flex:1;min-width:120px;background:var(--bg-input);padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);text-align:center}
-.stat-card .value{font-size:22px;font-weight:700;color:var(--accent)}
-.stat-card .value.green{color:var(--accent2)}.stat-card .value.orange{color:var(--accent3)}.stat-card .value.red{color:var(--accent-red)}
-.stat-card .label{font-size:10px;color:var(--text-secondary);margin-top:2px}
-.chart-container{position:relative;height:280px;width:100%;margin:12px 0}
-.loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:30px;flex-direction:column}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top:3px solid var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.report-output{background:#fff;color:#1a1d28;border-radius:var(--radius);padding:28px;max-width:210mm;margin:0 auto;font-size:13px;line-height:1.7}
-.report-output h1{font-size:22px;margin-bottom:4px;color:#1a237e}
-.report-output h2{font-size:17px;margin:24px 0 10px;color:#1a237e;border-bottom:2px solid #e0e0e0;padding-bottom:6px}
-.report-output h3{font-size:14px;margin:16px 0 6px;color:#333}
-.report-output table{font-size:12px;border-collapse:collapse;width:100%;margin:10px 0}
-.report-output th,.report-output td{border:1px solid #ddd;padding:6px 10px;text-align:left}
-.report-output th{background:#f5f5f5;color:#333}
-.file-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg-input)}
-.file-zone:hover{border-color:var(--accent);background:rgba(79,195,247,.05)}
-.file-zone .icon{font-size:32px}
-.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
-.print-hide{display:none}
-@media print{body{background:#fff;color:#000}.header,.tabs,.print-hide{display:none}}
+.alert{padding:10px 14px;border-radius:var(--rs);font-size:12px;margin-bottom:12px}
+.alert-i{background:rgba(79,195,247,.12);border:1px solid rgba(79,195,247,.3);color:var(--ac)}
+.alert-g{background:rgba(129,199,132,.12);border:1px solid rgba(129,199,132,.3);color:var(--ac2)}
+.alert-w{background:rgba(255,183,77,.12);border:1px solid rgba(255,183,77,.3);color:var(--ac3)}
+.alert-r{background:rgba(229,115,115,.12);border:1px solid rgba(229,115,115,.3);color:var(--ar)}
+/* File management */
+.fz{border:2px dashed var(--bd);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg4)}
+.fz:hover{border-color:var(--ac);background:rgba(79,195,247,.05)}.fz .ic{font-size:32px}
+.fc{padding:10px 14px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:6px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.fc:hover{border-color:var(--ac);background:rgba(79,195,247,.04)}
+.fc .fn{color:var(--t1);font-weight:500}.fc .fm{color:var(--t2);font-size:11px}.fc .fl{color:var(--ac);font-size:11px}
+.fcr h1{font-size:17px;color:var(--t1);margin:16px 0 8px}
+.fcr h2{font-size:15px;color:var(--t1);margin:12px 0 6px;border-bottom:1px solid var(--bd);padding-bottom:4px}
+.fcr h3{font-size:13px;color:var(--ac);margin:10px 0 4px}
+.fcr p,.fcr li{color:var(--t2);font-size:12px;margin-bottom:4px;line-height:1.7}
+.fcr table{font-size:11px;border-collapse:collapse;width:100%;margin:8px 0}
+.fcr th,.fcr td{border:1px solid var(--bd);padding:4px 8px;text-align:left}
+.fcr th{background:var(--bg4);color:var(--t2)}
+.fcr blockquote{border-left:3px solid var(--ac);padding:6px 12px;margin:8px 0;background:rgba(79,195,247,.04);color:var(--t2)}
+.fcr code{background:var(--bg4);padding:1px 5px;border-radius:3px;font-size:11px}
+.fcr hr{border:none;border-top:1px solid var(--bd);margin:12px 0}
+.fcr ul,.fcr ol{padding-left:20px}
+.fcr li{margin-bottom:2px}
+.fcr strong{color:#fff}
+.fcr em{color:var(--ac3)}
+.wl{color:var(--ac);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--ac);transition:all .2s}
+.wl:hover{color:#fff;border-bottom-color:#fff;background:rgba(79,195,247,.12)}
+/* Stat cards */
+.sr{display:flex;gap:12px;flex-wrap:wrap}
+.sc{flex:1;min-width:100px;background:var(--bg4);padding:12px;border-radius:var(--rs);border:1px solid var(--bd);text-align:center}
+.sc .v{font-size:22px;font-weight:700;color:var(--ac)}.sc .v.g{color:var(--ac2)}.sc .v.o{color:var(--ac3)}.sc .v.r{color:var(--ar)}.sc .v.p{color:var(--ap)}
+.sc .l{font-size:10px;color:var(--t2);margin-top:2px}
+/* Chart & report */
+.chart-box{position:relative;height:280px;width:100%;margin:12px 0}
+.spin{width:32px;height:32px;border:3px solid var(--bd);border-top:3px solid var(--ac);border-radius:50%;animation:s .8s linear infinite;margin:0 auto}
+@keyframes s{to{transform:rotate(360deg)}}
+.report{background:#fff;color:#1a1d28;border-radius:var(--r);padding:28px;max-width:210mm;margin:0 auto;font-size:13px;line-height:1.7}
+.report h1{font-size:22px;margin-bottom:4px;color:#1a237e}
+.report h2{font-size:17px;margin:24px 0 10px;color:#1a237e;border-bottom:2px solid #e0e0e0;padding-bottom:6px}
+.report h3{font-size:14px;margin:16px 0 6px;color:#333}
+.report table{font-size:12px;border-collapse:collapse;width:100%;margin:10px 0}
+.report th,.report td{border:1px solid #ddd;padding:6px 10px;text-align:left}
+.report th{background:#f5f5f5;color:#333}
+.nop{display:none}@media print{body{background:#fff;color:#000}.hdr,.tabs,.nop{display:none}}
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="hdr">
   <h1>📜 电力政策智能分析 <span>· HA 版</span></h1>
-  <p>基于 NAS 483 份政策文件 · 15分钟快速洞察</p>
+  <p>基于 NAS 482 份政策文件 · 文件库 · AI 分析 · 知识图谱 · 词频分析</p>
 </div>
 
-<div class="tabs" id="tabs">
-  <button class="tab-btn active" data-tab="query">🔍 政策查询</button>
-  <button class="tab-btn" data-tab="nlp">📊 词频分析</button>
-  <button class="tab-btn" data-tab="upload">📂 自定义</button>
-  <button class="tab-btn" data-tab="report">📄 报告</button>
+<div class="tabs">
+  <button class="tb active" data-t="query">🔍 政策查询</button>
+  <button class="tb" data-t="nlp">📊 词频分析</button>
+  <button class="tb" data-t="files">📂 文件库</button>
+  <button class="tb" data-t="upload">📤 自定义</button>
+  <button class="tb" data-t="report">📄 报告</button>
 </div>
 
-<div class="container">
+<div class="ct">
 
-<div class="tab-content active" id="tab-query">
-  <div class="grid-2">
+<!-- ===== TAB: QUERY ===== -->
+<div class="tc active" id="tc-query">
+  <div class="g2">
     <div class="card">
       <h2>🔍 政策智能查询</h2>
-      <div class="form-group">
+      <div class="fg">
         <label>省份/区域</label>
         <select id="q-province">
-          <optgroup label="🗺️ 全国">
-            <option>全国</option>
-            <option>国家级</option>
-          </optgroup>
-          <optgroup label="📌 区域级">
-            <option>南方区域</option>
-            <option>华北区域</option>
-            <option>华中区域</option>
-            <option>东北区域</option>
-            <option>长三角区域</option>
-            <option>跨省跨区</option>
-          </optgroup>
-          <optgroup label="🏛️ 华东">
-            <option selected>江苏</option>
-            <option>浙江</option>
-            <option>安徽</option>
-            <option>福建</option>
-            <option>山东</option>
-            <option>上海</option>
-          </optgroup>
-          <optgroup label="🏛️ 南方">
-            <option>广东</option>
-            <option>广西</option>
-            <option>云南</option>
-            <option>贵州</option>
-            <option>海南</option>
-          </optgroup>
-          <optgroup label="🏛️ 华中">
-            <option>湖南</option>
-            <option>湖北</option>
-            <option>河南</option>
-          </optgroup>
-          <optgroup label="🏛️ 华北">
-            <option>北京河北冀北</option>
-            <option>蒙西内蒙古</option>
-          </optgroup>
-          <optgroup label="🏛️ 东北">
-            <option>辽宁</option>
-            <option>吉林</option>
-            <option>黑龙江</option>
-          </optgroup>
-          <optgroup label="🏛️ 西北">
-            <option>陕西</option>
-            <option>甘肃</option>
-            <option>青海</option>
-            <option>宁夏</option>
-            <option>新疆</option>
-          </optgroup>
+          <optgroup label="🗺️ 全国"><option>全国</option><option>国家级</option></optgroup>
+          <optgroup label="📌 区域级"><option>南方区域</option><option>华北区域</option><option>华中区域</option><option>东北区域</option><option>长三角区域</option><option>跨省跨区</option></optgroup>
+          <optgroup label="🏛️ 华东"><option selected>江苏</option><option>浙江</option><option>安徽</option><option>福建</option><option>山东</option><option>上海</option></optgroup>
+          <optgroup label="🏛️ 南方"><option>广东</option><option>广西</option><option>云南</option><option>贵州</option><option>海南</option></optgroup>
+          <optgroup label="🏛️ 华中"><option>湖南</option><option>湖北</option><option>河南</option></optgroup>
+          <optgroup label="🏛️ 华北"><option>北京河北冀北</option><option>蒙西内蒙古</option></optgroup>
+          <optgroup label="🏛️ 东北"><option>辽宁</option><option>吉林</option><option>黑龙江</option></optgroup>
+          <optgroup label="🏛️ 西北"><option>陕西</option><option>甘肃</option><option>青海</option><option>宁夏</option><option>新疆</option></optgroup>
         </select>
       </div>
-      <div class="form-group">
+      <div class="fg">
         <label>分析主题</label>
         <select id="q-topic">
           <option>现货市场</option><option>中长期市场</option><option>分时电价</option><option>辅助服务</option><option>虚拟电厂</option><option>需求响应</option><option>储能</option><option>绿电交易</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>DeepSeek API Key <span style="color:var(--text-secondary);font-weight:400">（每次粘贴）</span></label>
+      <div class="fg">
+        <label>DeepSeek API Key <span style="font-weight:400;color:var(--t2)">（每次粘贴）</span></label>
         <input type="password" id="q-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
       </div>
-      <button class="btn btn-primary" id="btn-query" style="width:100%;justify-content:center;padding:12px">🤖 AI 政策分析</button>
+      <button class="btn btn-p" id="btn-query" style="width:100%;justify-content:center;padding:12px">🤖 AI 政策分析</button>
       <div id="q-progress" style="display:none;margin-top:12px">
-        <div class="spinner" style="margin:0 auto"></div>
-        <p style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:8px" id="q-status">AI 分析中...</p>
+        <div class="spin"></div>
+        <p style="text-align:center;font-size:12px;color:var(--t2);margin-top:8px" id="q-status">AI 分析中...</p>
       </div>
     </div>
     <div class="card">
       <h2>📋 内置样本数据</h2>
-      <p>预置江苏省现货电价深度分析报告（从NAS 483份政策文件中精选）。</p>
-      <div style="background:var(--bg-input);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
+      <p>预置江苏省现货电价深度分析报告（从NAS 482份政策文件中精选）。</p>
+      <div style="background:var(--bg4);padding:12px;border-radius:6px;margin-top:8px;max-height:260px;overflow:auto;font-size:11px;line-height:1.5" id="sample-preview"></div>
     </div>
   </div>
-  <div class="card" id="q-result" style="display:none">
+  <div class="card nop" id="q-result" style="display:none">
     <h2>💡 AI 分析结果</h2>
     <div id="q-result-content"></div>
   </div>
 </div>
 
-<div class="tab-content" id="tab-nlp">
-  <div class="grid-2">
+<!-- ===== TAB: NLP ===== -->
+<div class="tc" id="tc-nlp">
+  <div class="g2">
     <div class="card">
       <h2>📊 政策高频词云</h2>
-      <p>基于483份政策Markdown文件的jieba分词统计（TOP 50）。</p>
+      <p>基于482份政策Markdown文件的jieba分词统计（TOP 50）。</p>
       <div style="min-height:320px" id="wordcloud-vis"></div>
     </div>
     <div class="card">
       <h2>🏆 TOP 20 高频词</h2>
-      <table id="freq-table">
-        <thead><tr><th>#</th><th>关键词</th><th>频次</th><th>占比</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <table id="freq-table"><thead><tr><th>#</th><th>关键词</th><th>频次</th><th>占比</th></tr></thead><tbody></tbody></table>
     </div>
   </div>
   <div class="card">
     <h2>📈 政策类型分布</h2>
-    <div class="chart-container"><canvas id="type-chart"></canvas></div>
+    <div class="chart-box"><canvas id="type-chart"></canvas></div>
   </div>
 </div>
 
-<div class="tab-content" id="tab-upload">
-  <div class="grid-2">
+<!-- ===== TAB: FILES ===== -->
+<div class="tc" id="tc-files">
+  <div class="g2">
     <div class="card">
-      <h2>📂 上传政策文件</h2>
+      <h2>📂 政策文件库</h2>
+      <p>上传 .md 文件（浏览器端持久化存储），或加载内置示例/全量库。</p>
+      <div class="fg">
+        <div class="fz" id="upzone"><div class="ic">📄</div><p>点击上传 .md 政策文件</p><input type="file" id="upfile" accept=".md" style="display:none"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-p" id="btn-samples">📦 加载示例文件</button>
+        <button class="btn btn-s" id="btn-clear">🗑️ 清空数据</button>
+        <button class="btn" id="btn-remote" style="background:var(--ap);color:#000">📡 加载全量库</button>
+      </div>
+      <div id="file-stats" style="margin-top:8px;font-size:12px;color:var(--t2)"></div>
+    </div>
+    <div class="card" style="max-height:420px;overflow:auto">
+      <h2>📋 文件列表</h2>
+      <div id="file-list"><div style="color:var(--t2);font-size:12px;padding:20px;text-align:center">暂无文件，请上传或加载示例</div></div>
+    </div>
+  </div>
+  <div class="card nop" id="preview-card" style="display:none">
+    <h2 id="preview-title">📖 预览</h2>
+    <div id="preview-content" class="fcr"></div>
+  </div>
+</div>
+
+<!-- ===== TAB: UPLOAD ===== -->
+<div class="tc" id="tc-upload">
+  <div class="g2">
+    <div class="card">
+      <h2>📤 上传政策文件</h2>
       <p>上传 .md 政策文件或粘贴文本进行自定义分析。</p>
-      <div class="form-group">
-        <label>粘贴政策文本</label>
-        <textarea id="custom-text" rows="8" placeholder="在此粘贴政策原文..."></textarea>
-      </div>
-      <div style="text-align:center;color:var(--text-secondary);font-size:12px;padding:8px 0">或者</div>
-      <div class="file-zone" id="upload-zone">
-        <div class="icon">📄</div>
-        <p>点击上传 .md 文件</p>
-        <input type="file" id="md-files" accept=".md" style="display:none">
-      </div>
+      <div class="fg"><label>粘贴政策文本</label><textarea id="custom-text" rows="8" placeholder="在此粘贴政策原文..."></textarea></div>
+      <div style="text-align:center;color:var(--t2);font-size:12px;padding:8px 0">或者</div>
+      <div class="fz" id="upload-zone"><div class="ic">📄</div><p>点击上传 .md 文件</p><input type="file" id="md-files" accept=".md" style="display:none"></div>
       <div id="upload-list" style="margin-top:8px"></div>
     </div>
     <div class="card">
       <h2>🤖 自定义分析</h2>
-      <div class="form-group">
-        <label>DeepSeek API Key</label>
-        <input type="password" id="custom-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-      </div>
-      <div class="form-group">
-        <label>分析要求</label>
-        <textarea id="custom-prompt" rows="4">分析该文件的核心政策要点、对企业用电成本的影响、以及用户侧的市场机会。</textarea>
-      </div>
-      <button class="btn btn-primary" id="btn-custom-analyze" style="width:100%;justify-content:center;padding:12px">🔍 开始分析</button>
+      <div class="fg"><label>DeepSeek API Key</label><input type="password" id="custom-apikey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+      <div class="fg"><label>分析要求</label><textarea id="custom-prompt" rows="4">分析该文件的核心政策要点、对企业用电成本的影响、以及用户侧的市场机会。</textarea></div>
+      <button class="btn btn-p" id="btn-custom-analyze" style="width:100%;justify-content:center;padding:12px">🔍 开始分析</button>
       <div id="custom-progress" style="display:none;margin-top:8px;text-align:center">
-        <div class="spinner" style="margin:0 auto;width:24px;height:24px"></div>
-        <p style="font-size:12px;color:var(--text-secondary)" id="custom-status">分析中...</p>
+        <div class="spin" style="width:24px;height:24px"></div>
+        <p style="font-size:12px;color:var(--t2)" id="custom-status">分析中...</p>
       </div>
     </div>
   </div>
-  <div class="card" id="custom-result" style="display:none">
+  <div class="card nop" id="custom-result" style="display:none">
     <h2>📝 分析结果</h2>
     <div id="custom-result-content"></div>
   </div>
 </div>
 
-<div class="tab-content" id="tab-report">
-  <div class="print-hide" style="display:flex;gap:8px;margin-bottom:12px">
-    <button class="btn btn-success btn-sm" id="btn-report-md">📥 下载 MD</button>
-    <button class="btn btn-primary btn-sm" id="btn-report-html">📥 下载 HTML</button>
-    <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ 打印</button>
+<!-- ===== TAB: REPORT ===== -->
+<div class="tc" id="tc-report">
+  <div class="nop" style="display:flex;gap:8px;margin-bottom:12px">
+    <button class="btn btn-g" id="btn-report-md">📥 下载 MD</button>
+    <button class="btn btn-p" id="btn-report-html">📥 下载 HTML</button>
+    <button class="btn btn-s" onclick="window.print()">🖨️ 打印</button>
   </div>
-  <div id="report-content" style="color:var(--text-secondary);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
+  <div id="report-content" style="color:var(--t2);text-align:center;padding:60px">请先在「政策查询」或「自定义」中完成分析。</div>
 </div>
 
 </div>
 
 <script>
-// ======== DATA ========
-const SAMPLE_POLICY = `---
+// ======================== SAMPLE DATA ========================
+const SAMPLE_POLICY_STR = `---
 title: 江苏现货电价深度分析
 tags: [江苏电力市场, 现货电价, 分区电价, 辅助服务, 区域差异]
 type: 分析报告
 created: 2026-05-11
 description: 从电网架构、南北分区、电源结构、需求侧、VPP政策等多个维度深度剖析江苏现货电价的形成逻辑与特征
 ---
-
 # 江苏现货电价深度分析
-
 > 切入视角：江苏电网特点 → 电价形成机制 → 市场参与机会
 > 数据基础：江苏现货V2.0/V2.2规则 + 2026年4-5月实际电价数据 + 隆兴项目负荷分析成果
 
@@ -319,26 +308,163 @@ const WF = [
 ];
 const PT = {"现货市场":28,"中长期市场":18,"分时电价":15,"辅助服务":12,"虚拟电厂":10,"需求响应":8,"储能":7,"绿电交易":5,"容量电价":4,"其他":6};
 
-// ======== TABS ========
-document.querySelectorAll('.tab-btn').forEach(b=>{
+// ======================== FILE MANAGEMENT DATA ========================
+const SAMPLE_FILES = [
+ {"id":"国务院完善全国统一电力市场体系","title":"国家能源局关于组织申报新型电力系统建设第一批试点工作的通知","tags":[],"links":["电力现货市场","虚拟电厂"],"content":"---\ntags: [新型电力系统,试点,国家能源局]\naliases: [国能发电力〔2025〕53号]\ntype: 政策解析\n---\n# 国家能源局关于组织申报新型电力系统建设第一批试点工作的通知\n\n**TL;DR** 国家能源局组织新型电力系统第一批试点申报（2025年6月30日截止），设**7个试点方向**：构网型技术、系统友好型新能源电站、智能微电网、算力与电力协同、[[虚拟电厂]]、大规模高比例新能源外送、新一代煤电。超长期特别国债支持。\n\n## 试点形式\n- **项目试点**：依托典型项目，单一方向\n- **综合试点**：依托典型城市，多方向\n\n## 七个试点方向\n\n### 1. 构网型技术\n- 高比例新能源接入的弱电网地区应用\n- 提升系统强度和惯量支撑\n\n### 2. 系统友好型新能源电站\n- 提升置信出力至 **10%以上**\n\n### 3. 智能微电网\n- 提升自调峰、自平衡能力\n- 源网荷储一体化\n\n### 4. 算力与电力协同 ⭐\n- 绿电聚合供应\n- 源荷协同\n\n### 5. 虚拟电厂 ⭐\n- 聚合分散电力资源\n- 灵活调节能力\n- 参与[[电力现货市场]]\n\n### 6. 大规模高比例新能源外送\n- \"沙戈荒\"基地\n- 水风光一体化\n\n### 7. 新一代煤电\n- 清洁降碳\n- 高效调节\n\n## 组织实施\n1. **申报**：省级能源主管部门或央企组织，**2025年6月30日前**报送\n2. **评审**：第三方机构评审，优选确定\n3. **实施**：严格按方案建设，重大变更需申请\n4. **支持政策**：**超长期特别国债**支持，优先安排煤电规模\n5. **评估推广**：适时组织综合评估\n\n> [!todo] 行动项\n> - 关注各省试点名单公布，特别是[[虚拟电厂]]和算力电力协同方向的入选项目\n> - 测算本省是否有符合条件可申报的虚拟电厂项目\n\n> [!question] 延伸思考\n> - 虚拟电厂作为7个试点方向之一，说明国家层面已将其纳入新型电力系统核心组成，后续配套政策可期\n\n## 相关概念\n- [[电力现货市场]] — 本文涉及电力现货市场交易规则、日前实时市场或结算机制\n- [[虚拟电厂]] — 本文涉及虚拟电厂、负荷聚合或分布式资源聚合等内容\n","size":969},
+ {"id":"发电侧容量电价机制","title":"完善发电侧容量电价机制","tags":[],"links":["可靠容量补偿机制","容量市场"],"content":"---\ntags: [容量电价, 发电侧, 价格机制]\naliases: [完善发电侧容量电价机制, 发改价格2026-114号]\ntype: 政策解析\n---\n# 完善发电侧容量电价机制\n\n## TL;DR\n**发改价格〔2026〕114号** 分类完善煤电、气电、抽水蓄能、新型储能容量电价机制，将煤电容量电价回收固定成本比例提升至不低于 **50%** ，并在现货市场连续运行后建立发电侧[[可靠容量补偿机制]]。\n\n## 总体思路\n- 适应新型电力系统和电力市场体系建设需要\n- 统筹电力安全稳定供应、能源绿色低碳转型和资源经济高效配置\n- 分类完善煤电、天然气发电、抽水蓄能、新型储能容量电价机制\n- 现货市场连续运行后，有序建立发电侧[[可靠容量补偿机制]]\n- 对机组可靠容量根据顶峰能力按统一原则进行补偿\n\n## 分类完善容量电价机制\n\n### 一、煤电及天然气发电容量电价\n- 煤电机组固定成本回收比例提升至不低于 **50%**\n- 省级价格主管部门可对天然气发电建立容量电价机制\n\n### 二、抽水蓄能容量电价\n**633号文出台前开工电站：** 容量电价继续实行政府定价\n**633号文出台后开工电站：** 每3—5年按弥补平均成本的原则制定统一容量电价\n\n### 三、电网侧独立新型储能容量电价\n- 对服务于系统安全运行的电网侧独立新型储能，各地可给予容量电价\n- 容量电价水平以当地煤电容量电价标准为基础，根据顶峰能力折算\n\n## 有序建立发电侧可靠容量补偿机制\n- 可靠容量：机组在全年系统顶峰时段能够持续稳定供电的容量\n- 现货市场连续运行后，适时建立补偿机制\n- 具备条件的地区可适时通过[[容量市场]]等方式形成容量电价\n","size":2256},
+ {"id":"电力中长期市场基本规则","title":"电力中长期市场基本规则（征求意见稿）","tags":[],"links":["电力中长期市场","新型经营主体","电力交易中心","绿色电力证书","绿证","虚拟电厂"],"content":"---\ntags: [电力中长期,市场规则,交易规则]\naliases: [中长期市场基本规则,电力中长期交易基本规则2025征求意见稿]\ntype: 交易规则\n---\n# 电力中长期市场基本规则（征求意见稿）\n\n**TL;DR**: 新版电力中长期市场基本规则（征求意见稿）替代2020年版，新增[[新型经营主体]]（虚拟电厂、负荷聚合商、储能、智能微电网）参与框架，统一跨省跨区与省内交易耦合，明确绿电交易、分时段结算、按日连续运营等要求。\n\n## 市场成员分类\n- **经营主体**：发电企业、售电公司、电力用户、[[新型经营主体]]（储能、虚拟电厂、负荷聚合商、智能微电网）\n- **市场运营机构**：电力交易机构、电力调度机构\n- **电网企业**：提供输配电服务\n\n### 新型经营主体\n- 分类：单一技术类（分布式光伏、分散式风电、储能、可调节负荷）和资源聚合类（虚拟电厂、负荷聚合商、智能微电网）\n- 独立储能在放电时段按发电企业身份、充电时段按电力用户身份参与交易\n- 资源聚合类应具备信息处理、运行监控、业务管理、计量监管、控制执行能力\n\n## 交易品种与价格机制\n- 绿电价格 = 电能量价格 + 绿电环境价值（分别明确，绿电环境价值不纳入峰谷分时）\n- 合同电价可选择固定价格或与月度煤电价格指数、现货市场均价联动\n- 分时段交易形成分时电价\n- 逐步推动月度/月内交易限价与现货交易限价贴近\n\n## 结算要点\n- 结算周期：按自然月，按日清分\n- 虚拟电厂/负荷聚合商及聚合资源按合同明确的电能量价格单独结算\n- 绿电：电能量与绿电环境价值分开结算\n\n## 风险防控\n- 六大风险类型：电力供需失衡、市场价格异常、不正当竞争等\n- 建立事前预警 → 事中防范 → 事后处置防控体系\n","size":2089},
+ {"id":"虚拟电厂","title":"虚拟电厂","tags":[],"links":["电力现货市场","1014_浙江电力市场管理实施细则","89_推动新型储能参与电力市场和调度运用","需求响应","新能源消纳","辅助服务","1034_安徽电力现货市场准入退出实施细则"],"content":"---\ntitle: 虚拟电厂\ncreated: 2026-05-05\nupdated: 2026-05-05\ntype: concept\ntags: [需求响应, 国家级, 机制]\nsources: [[1034_安徽电力现货市场准入退出实施细则]], [[1014_浙江电力市场管理实施细则]], [[89_推动新型储能参与电力市场和调度运用]]\n---\n## 虚拟电厂\n\n**通过先进控制、计量、通信技术，将分布式光伏、储能、充电桩、可调负荷等分散资源聚合为一个整体参与电力市场的技术系统。**\n\n### 核心要点\n- **聚合资源**：分布式光伏、用户侧储能、电动汽车充电桩、可调负荷\n- **市场参与品种**：电力现货市场、辅助服务市场、需求响应市场\n- **聚合门槛**：典型聚合容量下限为**5MW～20MW**，单点容量不低于**0.1MW**\n- **控制要求**：需具备秒级到分钟级的远程控制能力\n- **收益模式**：电能量收益 + 辅助服务补偿 + 容量补偿 + 需求响应补贴\n\n### 与其他概念的关系\n- → [[需求响应]]：虚拟电厂是需求响应市场化的重要载体\n- → [[辅助服务]]：虚拟电厂可聚合资源参与调频、备用等辅助服务\n- → [[电力现货市场]]：虚拟电厂作为新型市场主体参与现货市场\n- → [[新能源消纳]]：虚拟电厂通过灵活调节促进分布式新能源就近消纳\n","size":1008},
+ {"id":"绿电交易","title":"绿电交易","tags":[],"links":["电力现货市场","60_中国可再生能源绿色电力证书百问百答2025","电力中长期市场","84_可再生能源绿色电力证书全覆盖工作通知","159_北京电力交易中心绿色电力交易实施细则2024"],"content":"---\ntitle: 绿电交易\ncreated: 2026-05-05\nupdated: 2026-05-05\ntype: concept\ntags: [绿证绿电, 国家级, 制度]\n---\n**绿色电力交易（绿电交易）是指电力用户直接购买可再生能源电能量及其对应的绿色电力证书（绿证）环境价值的交易方式。**\n\n## 核心要点\n- **交易结构**：绿电交易 = 电能量价值 + 绿证环境价值\n- **交易方式**：以双边协商为主，也可通过挂牌交易和集中竞价\n- **绿证核发**：可再生能源项目每上网 **1MWh** 绿电核发 **1个**绿证\n- **纳入碳排放核算**：企业购买的绿电消费量可纳入碳排放核算\n- **省间绿电交易**：支持跨省跨区绿电交易\n\n## 与其他概念的关系\n- → [[绿色电力证书]] 绿证是绿电交易中环境价值的载体\n- → [[碳排放权交易]] 绿电消费量可抵扣碳排放配额\n- → [[省间交易]] 绿电可通过省间交易通道实现跨省跨区交易\n","size":1777},
+ {"id":"辅助服务","title":"辅助服务","tags":[],"links":["电力现货市场","容量电价","需求响应","66_电力辅助服务市场基本规则_征求意见稿","1012_浙江电力调频辅助服务市场交易实施细则","75_建立健全电力辅助服务市场价格机制","虚拟电厂"],"content":"---\ntitle: 辅助服务\ncreated: 2026-05-05\nupdated: 2026-05-05\ntype: concept\ntags: [辅助服务, 国家级, 机制]\n---\n## 辅助服务\n\n**为保障电力系统安全稳定运行、维持电能质量而提供的非电能本体服务，包括调频、备用、调峰、爬坡、黑启动等。**\n\n### 核心要点\n- **主要品种**：调频（AGC）、备用、调峰、爬坡、黑启动\n- **调频补偿**：按调频里程补偿，出清价格由市场竞价形成\n- **深度调峰补偿**：火电机组出力降至50%以下部分按阶梯补偿\n- **费用分摊**：辅助服务费用由发电侧和用户侧共同分摊\n\n### 与其他概念的关系\n- → [[电力现货市场]]：现货市场与辅助服务市场联合出清\n- → [[虚拟电厂]]：虚拟电厂可聚合可调资源参与调频、备用等辅助服务\n- → [[需求响应]]：需求响应资源通过负荷调节提供辅助服务\n","size":1028},
+ {"id":"需求响应","title":"需求响应","tags":[],"links":["电力现货市场","1014_浙江电力市场管理实施细则","89_推动新型储能参与电力市场和调度运用","新能源消纳","辅助服务","83_电力负荷管理办法_2023版","虚拟电厂"],"content":"---\ntitle: 需求响应\ncreated: 2026-05-05\nupdated: 2026-05-05\ntype: concept\ntags: [需求响应, 国家级, 机制]\n---\n## 需求响应\n\n**电力用户根据价格信号或激励机制主动调整用电行为，在系统需要时减少（削峰）或增加（填谷）用电负荷的市场化机制。**\n\n### 核心要点\n- **两种模式**：市场化需求响应（自愿参与，竞价补偿）和有序用电（行政指令，保供兜底）\n- **响应类型**：削峰响应、填谷响应、紧急响应（15分钟内）\n- **可调资源**：工业可中断负荷、空调柔性控制、电动汽车充电、储能放电、虚拟电厂聚合\n- **参与门槛**：单个用户或聚合商响应容量一般不低于0.1MW\n\n### 与其他概念的关系\n- → [[虚拟电厂]]：虚拟电厂是需求响应市场化的重要组织形式\n- → [[辅助服务]]：需求响应资源可参与调频、备用等辅助服务市场\n- → [[电力现货市场]]：现货市场高电价时段自然驱动用户主动削减负荷\n","size":1124},
+ {"id":"江苏省电力现货市场连续结算","title":"江苏省电力中长期市场实施细则（征求意见稿）","tags":[],"links":["经营主体","915_江苏电力市场中长期电能量交易实施细则V1.0","914_江苏电力市场中长期交易规则V2.0","中长期结算参考点","新型经营主体","878_江苏省电力中长期市场实施细则（正式版V2026）","绿色电力交易","虚拟电厂"],"content":"---\ntags: 电力中长期,江苏电力市场,征求意见稿\naliases: [879_江苏中长期市场实施细则(征求意见稿)]\ntype: 政策解析\ncreated: 2026-05-06\n---\n# 江苏省电力中长期市场实施细则（征求意见稿）\n\n**TL;DR** 对标国家《电力中长期市场基本规则》全面重构江苏中长期市场体系，引入[[新型经营主体]]（虚拟电厂、负荷聚合商、智能微电网），建立数年—年—月—月内多时间维度交易机制，采用中长期结算参考点差量结算方式。\n\n## 市场成员\n- **用户分类**：一类用户（参与批发交易）和二类用户（参与零售交易）\n- **新型经营主体**：单一技术类（分布式光伏/风电、储能、可调节负荷）和资源聚合类（虚拟电厂、智能微电网）\n- 负荷类虚拟电厂参照售电公司，发电类虚拟电厂参照发电企业参与交易\n\n## 交易品种\n- 电能量直接交易、合同转让交易（发电侧/购电侧）、绿色电力交易\n- 交易方式：双边协商、集中竞价、滚动撮合、挂牌交易\n\n## 价格机制\n绿电交易价格 = 电能量价格 + 绿电环境价值\n\n## 结算\n- 采用中长期结算参考点差量结算\n- 发电侧2%/用户侧3%偏差免考核阈值\n","size":3148},
+ {"id":"广东独立储能交易细则","title":"广东省独立储能参与电能量市场交易细则（试行）","tags":[],"links":["新型储能","现货市场"],"content":"# 广东省独立储能参与电能量市场交易细则（试行）\n\n**TL;DR** 明确[[新型储能]]（独立储能）准入条件为额定功率≥**5MW**、充放电≥**1小时**，可参与中长期和[[现货市场]]交易。\n\n## 准入条件\n1. 额定功率在**5兆瓦**及以上，充放电时间均不低于**1小时**\n2. 具备独立分时正反向计量条件\n3. 具备调度直控条件\n4. 具备独立法人资格\n5. 按要求签订并网协议\n\n## 中长期电能量交易\n可参与年度、月度、多日等周期的双边协商、挂牌和集中竞争交易。设有月度净合约量约束、分时净合约量约束等风控机制。\n\n## 现货电能量交易\n独立储能可按\"报量报价\"或\"报量不报价\"方式参与。\n- 报量不报价：申报96点充放电出力曲线\n- 报量报价：最多10段充放电能量价格曲线\n\n## 结算\n采用统一结算点价格，含独立储能的加权计算公式。",
+ "size":5892},
+ {"id":"浙江分布式新能源聚合","title":"浙江2025年10月分布式新能源聚合通知","tags":[],"links":["1018_2024年浙江省电力市场化交易方案"],"content":"---\ntags: [政策解析, 浙江, 分布式新能源, 聚合, 2025]\naliases: [浙江2025年10月分布式新能源聚合通知]\ntype: 政策解析\n---\n# 浙江2025年10月分布式新能源聚合通知\n\n## TL;DR\n浙江电力交易中心组织2025年10月份分布式新能源聚合。聚合绑定/解绑窗口：**9月3日-9月15日18:00**。聚合协议有效期**10月1日-12月31日**。\n\n## 聚合绑定与解绑\n- 经营主体范围：已在浙江电力交易平台注册的分布式新能源发电企业和聚合商\n- 操作时间：2025年9月3日-9月15日18:00\n- 绑定流程：聚合商发起聚合 → 签订电子委托协议\n- 解绑流程：任一方发起解除协议申请 → 另一方审核通过\n- 订单创建后3个工作日内完成绑定/解绑流程\n\n## 操作注意事项\n1. 电子签章核对：提前核对电子签章有效性\n2. 平台信息维护：确保企业信息为最新\n3. 时间窗口：逾期不受理\n4. 协议生效：次月生效\n","size":1193}
+];
+
+// ======================== INDEXED DB ========================
+const DB = { db: null };
+function dbOpen() {
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open('PolicyDB', 1);
+    r.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('files')) {
+        const store = db.createObjectStore('files', { keyPath: 'id' });
+        store.createIndex('title','title',{unique:false});
+        store.createIndex('tags','tags',{unique:false});
+      }
+    };
+    r.onsuccess = e => { DB.db = e.target.result; res(); };
+    r.onerror = e => rej(e);
+  });
+}
+function dbPut(file) {
+  return new Promise((res,rej)=>{
+    const tx = DB.db.transaction('files','readwrite');
+    tx.objectStore('files').put(file);
+    tx.oncomplete = () => res();
+    tx.onerror = e => rej(e);
+  });
+}
+function dbGetAll() {
+  return new Promise((res,rej)=>{
+    const tx = DB.db.transaction('files','readonly');
+    const r = tx.objectStore('files').getAll();
+    r.onsuccess = () => res(r.result);
+    r.onerror = e => rej(e);
+  });
+}
+function dbClear() {
+  return new Promise((res,rej)=>{
+    const tx = DB.db.transaction('files','readwrite');
+    tx.objectStore('files').clear();
+    tx.oncomplete = () => res();
+  });
+}
+
+// ======================== WIKILINK PARSER ========================
+function extractWikilinks(text) {
+  const links = [];
+  const re = /\[\[([^\]]+)\]\]/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const parts = m[1].split('|');
+    links.push({ target: parts[0].trim(), display: parts[1] ? parts[1].trim() : parts[0].trim() });
+  }
+  return links;
+}
+function renderWikiContent(text, flist) {
+  text = text.replace(/^---[\s\S]*?---\s*/, '');
+  text = text.replace(/>\s*\[!\w+\][\s\S]*?(?=\n\n|\n#|$)/g, '');
+  text = text.replace(/\$\$[\s\S]*?\$\$/g, '[数学公式]');
+  text = text.replace(/\$[^$]*?\$/g, '');
+  let html = text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+    .replace(/\|(.+)\|/g, (m) => {
+      if (m.includes('---')) return '';
+      const cells = m.split('|').filter(c => c.trim());
+      if (cells.length <= 1) return m;
+      return '<tr><td>' + cells.join('</td><td>') + '</td></tr>';
+    })
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  html = html.replace(/(<tr>.*?<\/tr>)+/g, '<table>$&</table>');
+  html = '<p>' + html + '</p>';
+  html = html.replace(/\[\[([^\]]+)\]\]/g, (m, content) => {
+    const parts = content.split('|');
+    const target = parts[0].trim();
+    const display = parts[1] ? parts[1].trim() : target;
+    const exists = flist.some(f => f.id === target || f.title === target || (f.id && f.id.includes(target)));
+    const esc = target.replace(/'/g, "\\'");
+    if (exists) return '<a class="wl" onclick="openWikilink(\''+esc+'\')">'+display+'</a>';
+    return '<a class="wl" style="opacity:0.6;cursor:help" title="文件未加载">'+display+'</a>';
+  });
+  return html;
+}
+
+// ======================== GLOBAL STATE ========================
+let files = [];
+
+// ======================== TAB SWITCH ========================
+document.querySelectorAll('.tb').forEach(b=>{
   b.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active'); document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+    document.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tc').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tc-'+b.dataset.t).classList.add('active');
+    if(b.dataset.t==='files') renderFileList();
   });
 });
 
-// ======== INIT ========
-document.addEventListener('DOMContentLoaded',()=>{
+// ======================== INIT ========================
+document.addEventListener('DOMContentLoaded', async () => {
+  // Init DB
+  try { await dbOpen(); const s = await dbGetAll(); if(s.length>0) files=s; }
+  catch(e) { console.log('DB:',e); }
+
+  // NLP init
   const sp = document.getElementById('sample-preview');
-  const lines = SAMPLE_POLICY.split('\n').slice(0,22);
-  sp.innerHTML = '<b>江苏现货电价深度分析</b><br><br>' + lines.join('<br>') + '<br>...<span style="color:var(--accent3)"> 共'+SAMPLE_POLICY.length+'字</span>';
+  const lines = SAMPLE_POLICY_STR.split('\n').slice(0,22);
+  sp.innerHTML = '<b>江苏现货电价深度分析</b><br><br>' + lines.join('<br>') + '<br>...<span style="color:var(--ac3)"> 共'+SAMPLE_POLICY_STR.length+'字</span>';
   renderCloud(); renderFreq(); renderPie();
+
+  // File tab events
+  document.getElementById('upzone').onclick = () => document.getElementById('upfile').click();
+  document.getElementById('upfile').onchange = handleUpload;
+  document.getElementById('btn-samples').onclick = loadSamples;
+  document.getElementById('btn-clear').onclick = clearAll;
+  document.getElementById('btn-remote').onclick = loadRemoteLibrary;
+
+  // Query events
+  document.getElementById('btn-query').onclick = runQuery;
+
+  // Upload events
+  document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
+  document.getElementById('btn-custom-analyze').onclick = runCustom;
+
+  // Report events
+  document.getElementById('btn-report-md').onclick=()=>down('md');
+  document.getElementById('btn-report-html').onclick=()=>down('html');
+
+  // Load samples if empty
+  if(files.length===0) await loadSamples();
+  else renderFileList();
 });
 
+// ======================== NLP ========================
 function renderCloud(){
   const el = document.getElementById('wordcloud-vis');
-  const max = WF[0].c; const cols = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176'];
+  const max = WF[0].c;
+  const cols = ['#4fc3f7','#81c784','#ffb74d','#e57373','#ba68c8','#4dd0e1','#fff176'];
   el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:4px">' +
     WF.map((w,i)=>{const s=10+(w.c/max)*26; return '<span style="font-size:'+s+'px;color:'+cols[i%7]+';opacity:'+(0.5+(w.c/max)*0.5)+';padding:3px 6px;border-radius:4px;background:rgba(79,195,247,0.04);display:inline-block">'+w.w+'</span>';
   }).join('')+'</div>';
@@ -354,10 +480,67 @@ function renderPie(){
   });
 }
 
-// ======== QUERY ========
-document.getElementById('btn-query').onclick = async ()=>{
+// ======================== FILE MANAGEMENT ========================
+async function handleUpload(e) {
+  for(const file of e.target.files){
+    const text = await file.text();
+    const id = file.name.replace(/\.md$/,'');
+    const title = (text.match(/^#\s+(.+)$/m)||[])[1]||id;
+    const links = extractWikilinks(text).map(l=>l.target);
+    const f = {id,title,tags:[],links,content:text,size:text.length,updated:Date.now()};
+    files = files.filter(x=>x.id!==id);
+    files.push(f);
+    await dbPut(f);
+  }
+  renderFileList();
+  msg('g','✅ 已上传 '+e.target.files.length+' 个文件');
+}
+async function loadSamples() {
+  if(SAMPLE_FILES.length===0){msg('w','样本未完整加载');return;}
+  for(const sf of SAMPLE_FILES){
+    const i = files.findIndex(f=>f.id===sf.id);
+    if(i>=0) files[i]=sf; else files.push(sf);
+    await dbPut(sf);
+  }
+  renderFileList();
+  msg('g','✅ 已加载 '+SAMPLE_FILES.length+' 个示例文件');
+}
+async function clearAll() {
+  if(!confirm('确定清空所有文件？')) return;
+  await dbClear(); files=[]; renderFileList(); msg('i','已清空');
+}
+function renderFileList() {
+  const el = document.getElementById('file-list');
+  const st = document.getElementById('file-stats');
+  if(files.length===0){
+    el.innerHTML='<div style="color:var(--t2);font-size:12px;padding:20px;text-align:center">暂无文件</div>';
+    st.innerHTML=''; return;
+  }
+  el.innerHTML = files.map(f =>
+    '<div class="fc" onclick="openFile(\''+f.id.replace(/'/g,"\\'")+'\')">'+
+    '<div><div class="fn">'+esc(f.title||f.id)+'</div><div class="fm">'+f.id.substring(0,40)+' · '+sz(f.size)+'</div></div>'+
+    '<div class="fl">🔗 '+(f.links||[]).length+'</div></div>'
+  ).join('');
+  const tl = files.reduce((a,f)=>a+(f.links||[]).length,0);
+  st.innerHTML = '📂 '+files.length+' 个文件 · 🔗 '+tl+' 条链接 · 💾 本地持久化';
+}
+function openFile(id) {
+  const f = files.find(x=>x.id===id);
+  if(!f) return;
+  document.getElementById('preview-card').style.display='block';
+  document.getElementById('preview-title').textContent = '📖 '+(f.title||f.id);
+  document.getElementById('preview-content').innerHTML = renderWikiContent(f.content, files);
+}
+function openWikilink(target) {
+  let f = files.find(x=>x.id===target||x.title===target);
+  if(!f) f = files.find(x=>x.id.includes(target)||(x.title&&x.title.includes(target)));
+  if(f){ openFile(f.id); }else{ msg('w','文件"'+target+'"未加载'); }
+}
+
+// ======================== QUERY ========================
+async function runQuery() {
   const k = document.getElementById('q-apikey').value.trim();
-  if(!k){return alert('请粘贴 DeepSeek API Key');}
+  if(!k){alert('请粘贴DeepSeek API Key');return;}
   const pv = document.getElementById('q-province').value;
   const tp = document.getElementById('q-topic').value;
   document.getElementById('q-progress').style.display='block';
@@ -370,7 +553,7 @@ document.getElementById('btn-query').onclick = async ()=>{
       body:JSON.stringify({
         model:'deepseek-chat',
         messages:[{role:'system',content:'你是一位资深中国电力市场政策分析师。分析维度：1)交易规则（限价/结算/偏差考核） 2)企业成本影响（峰谷价差/尖峰电价/高耗能政策） 3)用户侧机会（VPP/储能/需求响应） 4)综合评估与行动建议。输出Markdown格式。'},
-          {role:'user',content:'以下是'+pv+tp+'相关政策文件内容：\n\n'+SAMPLE_POLICY.slice(0,5000)+'\n\n请分析。'}],
+          {role:'user',content:'以下是'+pv+tp+'相关政策：\n\n'+SAMPLE_POLICY_STR.slice(0,5000)+'\n\n请分析。'}],
         temperature:0.2,max_tokens:4096
       })
     });
@@ -380,32 +563,31 @@ document.getElementById('btn-query').onclick = async ()=>{
     document.getElementById('q-progress').style.display='none';
     document.getElementById('q-result').style.display='block';
     document.getElementById('q-result-content').innerHTML =
-      '<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
-      c.replace(/### (.+)/g,'<h3 style="color:var(--accent);margin:16px 0 6px;font-size:14px">$1</h3>')
-       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--border);padding-bottom:6px">$1</h2>')
+      '<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8;font-size:13px">'+
+      c.replace(/### (.+)/g,'<h3 style="color:var(--ac);margin:16px 0 6px;font-size:14px">$1</h3>')
+       .replace(/## (.+)/g,'<h2 style="color:#fff;margin:20px 0 10px;font-size:16px;border-bottom:1px solid var(--bd);padding-bottom:6px">$1</h2>')
        .replace(/\*\*(.+?)\*\*/g,'<strong style="color:#fff">$1</strong>')
        .replace(/\n/g,'<br>')+'</div>';
   }catch(e){document.getElementById('q-progress').style.display='none';alert('❌ '+e.message);}
-};
+}
 
-// ======== CUSTOM ========
-document.getElementById('upload-zone').onclick=()=>document.getElementById('md-files').click();
+// ======================== CUSTOM UPLOAD ========================
 let upTexts=[];
 document.getElementById('md-files').onchange=function(){
   upTexts=[]; const el=document.getElementById('upload-list'); el.innerHTML='';
   Array.from(this.files).forEach(f=>{
     const r=new FileReader();
-    r.onload=function(e){upTexts.push({n:f.name,c:e.target.result});el.innerHTML+='<div style="font-size:12px;color:var(--accent2)">✅ '+f.name+' ('+(e.target.result.length/1024).toFixed(1)+'KB)</div>';};
+    r.onload=function(e){upTexts.push({n:f.name,c:e.target.result});el.innerHTML+='<div style="font-size:12px;color:var(--ac2)">✅ '+f.name+' ('+(e.target.result.length/1024).toFixed(1)+'KB)</div>';};
     r.readAsText(f);
   });
 };
-document.getElementById('btn-custom-analyze').onclick=async()=>{
+async function runCustom() {
   const k=document.getElementById('custom-apikey').value.trim();
   if(!k)return alert('请粘贴API Key');
   const pt=document.getElementById('custom-prompt').value.trim();
   let txt=document.getElementById('custom-text').value.trim();
   if(upTexts.length) txt+='\n---\n'+upTexts.map(f=>'## '+f.n+'\n'+f.c.slice(0,3000)).join('\n');
-  if(!txt) txt=SAMPLE_POLICY;
+  if(!txt) txt=SAMPLE_POLICY_STR;
   document.getElementById('custom-progress').style.display='block';
   document.getElementById('custom-result').style.display='none';
   try{
@@ -417,18 +599,47 @@ document.getElementById('btn-custom-analyze').onclick=async()=>{
     const d=await r.json();
     document.getElementById('custom-progress').style.display='none';
     document.getElementById('custom-result').style.display='block';
-    document.getElementById('custom-result-content').innerHTML='<div style="background:var(--bg-input);padding:20px;border-radius:8px;line-height:1.8">'+d.choices[0].message.content.replace(/\n/g,'<br>')+'</div>';
+    document.getElementById('custom-result-content').innerHTML='<div style="background:var(--bg4);padding:20px;border-radius:8px;line-height:1.8">'+d.choices[0].message.content.replace(/\n/g,'<br>')+'</div>';
   }catch(e){document.getElementById('custom-progress').style.display='none';alert('❌ '+e.message);}
-};
+}
 
-// ======== REPORT ========
-document.getElementById('btn-report-md').onclick=()=>down('md');
-document.getElementById('btn-report-html').onclick=()=>down('html');
+// ======================== REMOTE LIBRARY ========================
+async function loadRemoteLibrary() {
+  msg('i','📡 正在从GitHub Pages加载全量政策库...');
+  try{
+    const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    const data = await resp.json();
+    if(!data.files||data.files.length===0) throw new Error('无文件');
+    const total = data.files.length;
+    let loaded = 0;
+    for(const f of data.files){
+      const i = files.findIndex(x=>x.id===f.id);
+      if(i>=0) files[i]=f; else files.push(f);
+      await dbPut(f);
+      loaded++;
+      if(loaded%50===0) document.getElementById('file-stats').innerHTML = '⏳ '+loaded+'/'+total;
+    }
+    renderFileList();
+    msg('g','✅ 已加载 '+total+' 个政策文件（'+(data.total_links||0)+' 条链接）');
+  }catch(e){ msg('r','❌ 加载失败: '+e.message); }
+}
+
+// ======================== REPORT ========================
 function down(f){
   const d=new Date().toISOString().substring(0,10);
-  const md=`# 电力政策智能分析报告\n> 生成日期: ${d} | 数据源: NAS 483份政策文件\n\n## 一、高频词热点\n\n| 排名 | 关键词 | 频次 |\n|------|--------|------|\n`+WF.slice(0,15).map((w,i)=>'| '+(i+1)+' | '+w.w+' | '+w.c+' |').join('\n')+`\n\n## 二、政策类型分布\n`+Object.entries(PT).map(([k,v])=>'- **'+k+'**: '+v+'份').join('\n')+`\n\n## 三、核心发现\n\n### 现货市场\n- 江苏日前均价 260-310元/MWh，峰谷价差仅0.06元/kWh\n- 申报上限1500元/MWh，出清96点/天\n- 苏南负荷密集区价格高于苏北5-10元/MWh\n\n### 用户侧机会\n- 储能+现货套利：午间充电、晚峰放电\n- VPP参与辅助服务：准入≥1MW\n- 需求响应补贴：2-5元/kW/次\n\n## 四、行动建议\n\n1. 建立精准负荷预测，管控偏差考核风险\n2. 配置储能参与现货+辅助服务双重收益\n3. 关注分时电价政策变化，优化用电策略\n4. 探索虚拟电厂聚合模式，聚合可调负荷\n5. 绿电交易满足消纳责任权重\n`.trim();
+  const md='# 电力政策智能分析报告\n> 生成日期: '+d+' | 数据源: NAS 482份政策文件\n\n## 一、高频词热点\n\n| 排名 | 关键词 | 频次 |\n|------|--------|------|\n'+WF.slice(0,15).map((w,i)=>'| '+(i+1)+' | '+w.w+' | '+w.c+' |').join('\n')+'\n\n## 二、政策类型分布\n'+Object.entries(PT).map(([k,v])=>'- **'+k+'**: '+v+'份').join('\n')+'\n\n## 三、核心发现\n\n### 现货市场\n- 江苏日前均价 260-310元/MWh，峰谷价差仅0.06元/kWh\n- 申报上限1500元/MWh，出清96点/天\n- 苏南负荷密集区价格高于苏北5-10元/MWh\n\n### 用户侧机会\n- 储能+现货套利：午间充电、晚峰放电\n- VPP参与辅助服务：准入≥1MW\n- 需求响应补贴：2-5元/kW/次\n\n## 四、行动建议\n\n1. 建立精准负荷预测，管控偏差考核风险\n2. 配置储能参与现货+辅助服务双重收益\n3. 关注分时电价政策变化，优化用电策略\n4. 探索虚拟电厂聚合模式，聚合可调负荷\n5. 绿电交易满足消纳责任权重\n'.trim();
   const blob=new Blob([f==='md'?md:'<!DOCTYPE html><html><head><meta charset=UTF-8><title>政策报告</title><style>body{font-family:Microsoft YaHei,sans-serif;max-width:210mm;margin:0 auto;padding:40px;color:#333;line-height:1.8}h1{color:#1a237e;border-bottom:3px solid #1a237e}h2{color:#1a237e;border-bottom:2px solid #e0e0e0;margin-top:24px}table{border-collapse:collapse;width:100%;margin:12px 0}th,td{border:1px solid #ddd;padding:6px 10px}th{background:#f5f5f5}</style></head><body>'+md.replace(/\n/g,'<br>')+'</body></html>'],{type:f==='md'?'text/markdown':'text/html'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='政策报告_'+d+'.'+(f==='md'?'md':'html');a.click();
+}
+
+// ======================== UTILS ========================
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function sz(n){return n>1024?(n/1024).toFixed(1)+'KB':n+'B';}
+function msg(type,t){
+  const e=document.createElement('div');e.className='alert alert-'+type;
+  e.textContent=t;e.style.cssText='position:fixed;top:16px;right:16px;z-index:1000;min-width:240px';
+  document.querySelector('.ct').appendChild(e);setTimeout(()=>e.remove(),4000);
 }
 </script>
 </body>
