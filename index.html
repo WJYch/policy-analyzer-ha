@@ -1178,77 +1178,46 @@ function formatSize(n) {
 }
 
 async function loadRemoteLibrary() {
-  showMsg('i', '📡 正在从 GitHub Pages 加载全量政策库...');
+  const btn = document.getElementById('btn-remote');
+  const stats = document.getElementById('file-stats');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.textContent = '⏳ 加载中...';
   try {
+    stats.innerHTML = '📡 正在连接...';
     const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     if (!data.files || data.files.length === 0) throw new Error('无文件');
     const total = data.files.length;
+    stats.innerHTML = '⏳ 0/' + total + ' 正在保存到本地...';
     let loaded = 0;
     for (const f of data.files) {
-      const existing = files.findIndex(x => x.id === f.id);
-      if (existing >= 0) files[existing] = f;
-      else files.push(f);
+      const i = files.findIndex(x => x.id === f.id);
+      if (i >= 0) files[i] = f; else files.push(f);
       await dbPut(f);
       loaded++;
-      if (loaded % 50 === 0) document.getElementById('file-stats').innerHTML = '⏳ 加载中 ' + loaded + '/' + total;
+      if (loaded % 20 === 0 || loaded === total) {
+        stats.innerHTML = '⏳ ' + loaded + '/' + total + ' 已保存';
+      }
     }
     renderFileList();
-    showMsg('g', '✅ 已加载 ' + total + ' 个政策文件（' + (data.total_links||0) + ' 条链接）');
+    stats.innerHTML = '✅ ' + total + ' 个文件已加载（' + (data.total_links||0) + ' 条链接）';
+    msg('g', '✅ 已加载 ' + total + ' 个政策文件');
   } catch(e) {
-    showMsg('r', '❌ 加载失败: ' + e.message);
+    stats.innerHTML = '❌ 加载失败: ' + e.message;
+    msg('r', '❌ 加载失败: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '📡 加载全量库';
   }
-}
-
-
-
-// ======================== UTILITIES ========================
-function escapeHtml(s) {
-  const d = document.createElement('div');
-  d.textContent = s || '';
-  return d.innerHTML;
-}
-
-function formatSize(n) {
-  return n > 1024 ? (n/1024).toFixed(1)+'KB' : n+'B';
-}
-
-
-
-function showMsg(type, msg) {
+}function showMsg(type, msg) {
   const el = document.createElement('div');
   el.className = 'alert alert-' + type;
   el.textContent = msg;
   el.style.cssText = 'position:fixed;top:16px;right:16px;z-index:1000;min-width:240px';
   document.querySelector('.ct').appendChild(el);
   setTimeout(() => el.remove(), 4000);
-}
-
-
-// Override loadRemoteLibrary to use correct URL
-async function loadRemoteLibrary() {
-  showMsg('i', '📡 正在从 GitHub Pages 加载全量政策库...');
-  try {
-    const resp = await fetch('https://wjych.github.io/policy-graph/policy_data.json');
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-    if (!data.files || data.files.length === 0) throw new Error('无文件');
-    const total = data.files.length;
-    let loaded = 0;
-    for (const f of data.files) {
-      const existing = files.findIndex(x => x.id === f.id);
-      if (existing >= 0) files[existing] = f;
-      else files.push(f);
-      await dbPut(f);
-      loaded++;
-      if (loaded % 50 === 0) document.getElementById('file-stats').innerHTML = '⏳ 加载中 ' + loaded + '/' + total;
-    }
-    renderFileList();
-    showMsg('g', '✅ 已加载 ' + total + ' 个政策文件（' + (data.total_links||0) + ' 条链接）');
-  } catch(e) {
-    showMsg('r', '❌ 加载失败: ' + e.message);
-  }
 }
 
 
